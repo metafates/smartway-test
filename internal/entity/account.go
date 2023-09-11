@@ -1,6 +1,9 @@
 package entity
 
 type Account struct {
-	Name   string `json:"name,omitempty"`
-	Scheme Scheme `json:"scheme"`
+	// ID of the account
+	ID string `json:"id,omitempty"`
+
+	// SchemaID is a SchemaID id what this account is assigned to
+	SchemaID string `json:"scheme"`
 }
