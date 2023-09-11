@@ -14,10 +14,10 @@ type (
 		GetAirlines(ctx context.Context, ID string) ([]entity.Airline, error)
 	}
 
-	Scheme interface {
-		Add(ctx context.Context, scheme entity.Schema) error
+	Schema interface {
+		Add(ctx context.Context, schema entity.Schema) error
 		Delete(ctx context.Context, ID string) error
-		Change(ctx context.Context, scheme, changes entity.Schema) (entity.Schema, error)
+		Update(ctx context.Context, ID string, changes entity.Schema) (entity.Schema, error)
 		Find(ctx context.Context, name string) (entity.Schema, bool, error)
 	}
 
@@ -34,17 +34,19 @@ type (
 
 	Repository interface {
 		StoreAccount(ctx context.Context, account entity.Account, overwrite bool) error
-		GetAccount(ctx context.Context, ID string) (entity.Account, bool, error)
+		GetAccountByID(ctx context.Context, ID string) (entity.Account, bool, error)
 		DeleteAccount(ctx context.Context, ID string) error
 
-		StoreSchema(ctx context.Context, scheme entity.Schema, overwrite bool) error
-		GetSchema(ctx context.Context, schemeID string) (entity.Schema, bool, error)
+		StoreSchema(ctx context.Context, schema entity.Schema, overwrite bool) error
+		GetSchemaByID(ctx context.Context, ID string) (entity.Schema, bool, error)
+		GetSchemaByName(ctx context.Context, name string) (entity.Schema, bool, error)
+		DeleteSchema(ctx context.Context, ID string) error
 
 		StoreProvider(ctx context.Context, provider entity.Provider, overwrite bool) error
-		GetProvider(ctx context.Context, ID string) (entity.Provider, bool, error)
-		GetProviders(ctx context.Context, IDs ...string) ([]entity.Provider, error)
+		GetProviderByID(ctx context.Context, ID string) (entity.Provider, bool, error)
+		GetProvidersByIDs(ctx context.Context, IDs ...string) ([]entity.Provider, error)
 
 		StoreAirline(ctx context.Context, airline entity.Airline, overwrite bool) error
-		GetAirlines(ctx context.Context, IDs ...string) ([]entity.Airline, error)
+		GetAirlinesByCodes(ctx context.Context, codes ...string) ([]entity.Airline, error)
 	}
 )

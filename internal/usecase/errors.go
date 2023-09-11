@@ -3,6 +3,6 @@ package usecase
 import "errors"
 
 var (
-	ErrSchemaDoesNotExist  = errors.New("schema does not exist")
-	ErrAccountDoesNotExist = errors.New("account does not exist")
+	ErrSchemaNotFound  = errors.New("schema not found")
+	ErrAccountNotFound = errors.New("account not found")
 )

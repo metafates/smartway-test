@@ -22,22 +22,22 @@ func (a *AccountUseCase) Delete(ctx context.Context, ID string) error {
 }
 
 func (a *AccountUseCase) SetScheme(ctx context.Context, accountID, schemaID string) error {
-	account, accountExists, err := a.repo.GetAccount(ctx, accountID)
+	account, accountExists, err := a.repo.GetAccountByID(ctx, accountID)
 	if err != nil {
 		return err
 	}
 
 	if !accountExists {
-		return ErrAccountDoesNotExist
+		return ErrAccountNotFound
 	}
 
-	_, schemaExists, err := a.repo.GetSchema(ctx, schemaID)
+	_, schemaFound, err := a.repo.GetSchemaByID(ctx, schemaID)
 	if err != nil {
 		return err
 	}
 
-	if !schemaExists {
-		return ErrSchemaDoesNotExist
+	if !schemaFound {
+		return ErrSchemaNotFound
 	}
 
 	account.SchemaID = schemaID
@@ -46,39 +46,39 @@ func (a *AccountUseCase) SetScheme(ctx context.Context, accountID, schemaID stri
 }
 
 func (a *AccountUseCase) GetAirlines(ctx context.Context, ID string) ([]entity.Airline, error) {
-	account, accountExists, err := a.repo.GetAccount(ctx, ID)
+	account, accountExists, err := a.repo.GetAccountByID(ctx, ID)
 	if err != nil {
 		return nil, err
 	}
 
 	if !accountExists {
-		return nil, ErrAccountDoesNotExist
+		return nil, ErrAccountNotFound
 	}
 
-	schema, schemaExists, err := a.repo.GetSchema(ctx, account.SchemaID)
+	schema, schemaFound, err := a.repo.GetSchemaByID(ctx, account.SchemaID)
 	if err != nil {
 		return nil, err
 	}
 
-	if !schemaExists {
-		return nil, ErrSchemaDoesNotExist
+	if !schemaFound {
+		return nil, ErrSchemaNotFound
 	}
 
 	providersIDs := lo.Keys(schema.Providers)
 
-	providers, err := a.repo.GetProviders(ctx, providersIDs...)
+	providers, err := a.repo.GetProvidersByIDs(ctx, providersIDs...)
 	if err != nil {
 		return nil, err
 	}
 
-	var airlinesIDs map[string]struct{}
+	var airlinesCodes map[string]struct{}
 	for _, provider := range providers {
-		for airlineID := range provider.Airlines {
-			airlinesIDs[airlineID] = struct{}{}
+		for code := range provider.Airlines {
+			airlinesCodes[code] = struct{}{}
 		}
 	}
 
-	return a.repo.GetAirlines(ctx, lo.Keys(airlinesIDs)...)
+	return a.repo.GetAirlinesByCodes(ctx, lo.Keys(airlinesCodes)...)
 }
 
 func NewAccountUseCase(repository Repository) *AccountUseCase {
