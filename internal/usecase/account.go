@@ -23,7 +23,7 @@ func NewAccountUseCase(repository Repository) *AccountUseCase {
 }
 
 func (a *AccountUseCase) Add(ctx context.Context, account entity.Account) error {
-	return a.repo.StoreAccount(ctx, account, false)
+	return a.repo.StoreAccount(ctx, account)
 }
 
 func (a *AccountUseCase) Delete(ctx context.Context, ID string) error {
@@ -51,7 +51,7 @@ func (a *AccountUseCase) SetScheme(ctx context.Context, accountID, schemaID stri
 
 	account.SchemaID = schemaID
 
-	return a.repo.StoreAccount(ctx, account, true)
+	return a.repo.StoreAccount(ctx, account)
 }
 
 func (a *AccountUseCase) GetAirlines(ctx context.Context, ID string) ([]entity.Airline, error) {

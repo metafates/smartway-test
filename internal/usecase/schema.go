@@ -23,7 +23,7 @@ func NewSchemaUseCase(repository Repository) *SchemaUseCase {
 }
 
 func (s *SchemaUseCase) Add(ctx context.Context, schema entity.Schema) error {
-	return s.repo.StoreSchema(ctx, schema, false)
+	return s.repo.StoreSchema(ctx, schema)
 }
 
 func (s *SchemaUseCase) Delete(ctx context.Context, ID string) error {
@@ -41,40 +41,8 @@ func (s *SchemaUseCase) Delete(ctx context.Context, ID string) error {
 	return s.repo.DeleteSchema(ctx, ID)
 }
 
-func (s *SchemaUseCase) Update(ctx context.Context, ID string, changes entity.Schema) (entity.Schema, error) {
-	schema, schemaFound, err := s.repo.GetSchemaByID(ctx, ID)
-	if err != nil {
-		return entity.Schema{}, err
-	}
-
-	if !schemaFound {
-		return entity.Schema{}, ErrSchemaNotFound
-	}
-
-	updated := s.update(schema, changes)
-
-	err = s.repo.StoreSchema(ctx, updated, true)
-	if err != nil {
-		return entity.Schema{}, err
-	}
-
-	return updated, nil
-}
-
-func (s *SchemaUseCase) update(schema, changes entity.Schema) entity.Schema {
-	if changes.ID != "" {
-		schema.ID = changes.ID
-	}
-
-	if changes.ProvidersIDs != nil {
-		schema.ProvidersIDs = changes.ProvidersIDs
-	}
-
-	if changes.Name != "" {
-		schema.Name = changes.Name
-	}
-
-	return schema
+func (s *SchemaUseCase) Update(ctx context.Context, ID string, changes entity.Schema) error {
+	return s.repo.UpdateSchema(ctx, ID, changes)
 }
 
 func (s *SchemaUseCase) Find(ctx context.Context, name string) (entity.Schema, bool, error) {

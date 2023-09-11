@@ -23,7 +23,7 @@ func NewProviderUseCase(repository Repository) *ProviderUseCase {
 }
 
 func (p ProviderUseCase) Add(ctx context.Context, provider entity.Provider) error {
-	return p.repo.StoreProvider(ctx, provider, false)
+	return p.repo.StoreProvider(ctx, provider)
 }
 
 func (p ProviderUseCase) Delete(ctx context.Context, ID string) error {
