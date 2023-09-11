@@ -22,7 +22,7 @@ type (
 	}
 
 	Provider interface {
-		Add(ctx context.Context, supplier entity.Provider) error
+		Add(ctx context.Context, provider entity.Provider) error
 		Delete(ctx context.Context, ID string) error
 		GetAirlines(ctx context.Context, ID string) ([]entity.Airline, error)
 	}
@@ -45,6 +45,7 @@ type (
 		StoreProvider(ctx context.Context, provider entity.Provider, overwrite bool) error
 		GetProviderByID(ctx context.Context, ID string) (entity.Provider, bool, error)
 		GetProvidersByIDs(ctx context.Context, IDs ...string) ([]entity.Provider, error)
+		DeleteProvider(ctx context.Context, ID string) error
 
 		StoreAirline(ctx context.Context, airline entity.Airline, overwrite bool) error
 		GetAirlinesByCodes(ctx context.Context, codes ...string) ([]entity.Airline, error)
