@@ -35,6 +35,7 @@ type (
 	Repository interface {
 		StoreAccount(ctx context.Context, account entity.Account, overwrite bool) error
 		GetAccountByID(ctx context.Context, ID string) (entity.Account, bool, error)
+		GetAccounts(ctx context.Context) ([]entity.Account, error)
 		DeleteAccount(ctx context.Context, ID string) error
 
 		StoreSchema(ctx context.Context, schema entity.Schema, overwrite bool) error

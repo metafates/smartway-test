@@ -2,15 +2,24 @@ package usecase
 
 import (
 	"context"
+	"errors"
 
 	"github.com/metafates/smartway-test/internal/entity"
 	"github.com/samber/lo"
+)
+
+var (
+	ErrProviderNotFound = errors.New("provider not found")
 )
 
 var _ Provider = (*ProviderUseCase)(nil)
 
 type ProviderUseCase struct {
 	repo Repository
+}
+
+func NewProviderUseCase(repository Repository) *ProviderUseCase {
+	return &ProviderUseCase{repo: repository}
 }
 
 func (p ProviderUseCase) Add(ctx context.Context, provider entity.Provider) error {
@@ -31,5 +40,5 @@ func (p ProviderUseCase) GetAirlines(ctx context.Context, ID string) ([]entity.A
 		return nil, ErrProviderNotFound
 	}
 
-	return p.repo.GetAirlinesByCodes(ctx, lo.Keys(provider.Airlines)...)
+	return p.repo.GetAirlinesByCodes(ctx, lo.Keys(provider.AirlinesCodes)...)
 }

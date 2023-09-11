@@ -2,15 +2,24 @@ package usecase
 
 import (
 	"context"
+	"errors"
 
 	"github.com/metafates/smartway-test/internal/entity"
 	"github.com/samber/lo"
+)
+
+var (
+	ErrAccountNotFound = errors.New("account not found")
 )
 
 var _ Account = (*AccountUseCase)(nil)
 
 type AccountUseCase struct {
 	repo Repository
+}
+
+func NewAccountUseCase(repository Repository) *AccountUseCase {
+	return &AccountUseCase{repo: repository}
 }
 
 func (a *AccountUseCase) Add(ctx context.Context, account entity.Account) error {
@@ -64,7 +73,7 @@ func (a *AccountUseCase) GetAirlines(ctx context.Context, ID string) ([]entity.A
 		return nil, ErrSchemaNotFound
 	}
 
-	providersIDs := lo.Keys(schema.Providers)
+	providersIDs := lo.Keys(schema.ProvidersIDs)
 
 	providers, err := a.repo.GetProvidersByIDs(ctx, providersIDs...)
 	if err != nil {
@@ -73,14 +82,10 @@ func (a *AccountUseCase) GetAirlines(ctx context.Context, ID string) ([]entity.A
 
 	var airlinesCodes map[string]struct{}
 	for _, provider := range providers {
-		for code := range provider.Airlines {
+		for code := range provider.AirlinesCodes {
 			airlinesCodes[code] = struct{}{}
 		}
 	}
 
 	return a.repo.GetAirlinesByCodes(ctx, lo.Keys(airlinesCodes)...)
-}
-
-func NewAccountUseCase(repository Repository) *AccountUseCase {
-	return &AccountUseCase{repo: repository}
 }
