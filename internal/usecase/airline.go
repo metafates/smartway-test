@@ -42,6 +42,9 @@ func (a *AirlineUseCase) SetProviders(ctx context.Context, airlineID string, pro
 	}
 
 	// TODO!: use transactions
+	//
+	// maybe this?
+	// https://www.conf42.com/Golang_2023_Ilia_Sergunin_transaction_management_repository_pattern
 	maps.Clear(airline.ProvidersIDs)
 	for _, provider := range providers {
 		airline.ProvidersIDs[provider.ID] = struct{}{}

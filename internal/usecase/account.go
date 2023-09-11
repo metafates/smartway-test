@@ -30,7 +30,7 @@ func (a *AccountUseCase) Delete(ctx context.Context, ID string) error {
 	return a.repo.DeleteAccount(ctx, ID)
 }
 
-func (a *AccountUseCase) SetScheme(ctx context.Context, accountID, schemaID string) error {
+func (a *AccountUseCase) SetSchema(ctx context.Context, accountID, schemaID string) error {
 	account, accountExists, err := a.repo.GetAccountByID(ctx, accountID)
 	if err != nil {
 		return err

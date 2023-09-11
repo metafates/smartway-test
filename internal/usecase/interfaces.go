@@ -10,7 +10,7 @@ type (
 	Account interface {
 		Add(ctx context.Context, account entity.Account) error
 		Delete(ctx context.Context, ID string) error
-		SetScheme(ctx context.Context, accountID string, schemaID string) error
+		SetSchema(ctx context.Context, accountID string, schemaID string) error
 		GetAirlines(ctx context.Context, ID string) ([]entity.Airline, error)
 	}
 

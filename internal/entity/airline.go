@@ -5,5 +5,5 @@ type Airline struct {
 	Name string `json:"name,omitempty"`
 
 	// ProvidersIDs that provide this airline
-	ProvidersIDs map[string]struct{} `json:"providers"`
+	ProvidersIDs map[string]struct{} `json:"-"`
 }

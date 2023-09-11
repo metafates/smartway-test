@@ -5,5 +5,5 @@ type Account struct {
 	ID string `json:"id,omitempty"`
 
 	// SchemaID is a SchemaID id what this account is assigned to
-	SchemaID string `json:"scheme"`
+	SchemaID string `json:"-"`
 }

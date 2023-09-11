@@ -8,5 +8,5 @@ type Schema struct {
 	ID string `json:"id"`
 
 	// ProvidersIDs that this schema shows
-	ProvidersIDs map[string]struct{} `json:"suppliers"`
+	ProvidersIDs map[string]struct{} `json:"-"`
 }
