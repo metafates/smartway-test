@@ -10,6 +10,8 @@ import (
 var (
 	ErrUsedSchemaDeletion = errors.New("schema that is being used can not be deleted")
 	ErrSchemaNotFound     = errors.New("schema not found")
+	ErrSchemaNameMissing  = errors.New("schema name is missing")
+	ErrInvalidSchemaID    = errors.New("invalid schema id")
 )
 
 var _ Schema = (*SchemaUseCase)(nil)
@@ -23,6 +25,14 @@ func NewSchemaUseCase(repository Repository) *SchemaUseCase {
 }
 
 func (s *SchemaUseCase) Add(ctx context.Context, schema entity.Schema) error {
+	if schema.Name == "" {
+		return ErrSchemaNameMissing
+	}
+
+	if schema.ID <= 0 {
+		return ErrInvalidSchemaID
+	}
+
 	return s.repo.StoreSchema(ctx, schema)
 }
 

@@ -41,14 +41,14 @@ func (p *providersRoutes) extractID(r *http.Request) int {
 	return int(id)
 }
 
-type postIDRequest struct {
+type postProvidersIDRequest struct {
 	Name string `json:"name,omitempty"`
 }
 
 func (p *providersRoutes) PostID(w http.ResponseWriter, r *http.Request) {
 	id := p.extractID(r)
 
-	var request postIDRequest
+	var request postProvidersIDRequest
 	if err := bindJSON(r, &request); err != nil {
 		writeError(w, err)
 		return
@@ -63,7 +63,7 @@ func (p *providersRoutes) PostID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeOK(w)
+	w.WriteHeader(http.StatusCreated)
 }
 
 func (p *providersRoutes) DeleteID(w http.ResponseWriter, r *http.Request) {
@@ -74,7 +74,7 @@ func (p *providersRoutes) DeleteID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeOK(w)
+	w.WriteHeader(http.StatusOK)
 }
 
 func (p *providersRoutes) GetIDAirlines(w http.ResponseWriter, r *http.Request) {

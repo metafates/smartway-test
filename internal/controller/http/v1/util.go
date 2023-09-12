@@ -6,10 +6,6 @@ import (
 	"net/http"
 )
 
-func writeOK(w http.ResponseWriter) {
-	w.WriteHeader(http.StatusOK)
-}
-
 func writeJSON(w http.ResponseWriter, value any, code int) {
 	response, err := json.Marshal(value)
 	if err != nil {
@@ -29,6 +25,8 @@ func bindJSON(r *http.Request, dst any) error {
 		if contentType != "application/json" {
 			return errors.New("Content-Type header is not application/json")
 		}
+	} else {
+		return nil
 	}
 
 	decoder := json.NewDecoder(r.Body)

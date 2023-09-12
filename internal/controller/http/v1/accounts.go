@@ -54,7 +54,7 @@ func (a *accountsRoutes) PostID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeOK(w)
+	w.WriteHeader(http.StatusCreated)
 }
 
 func (a *accountsRoutes) DeleteID(w http.ResponseWriter, r *http.Request) {
@@ -66,7 +66,7 @@ func (a *accountsRoutes) DeleteID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeOK(w)
+	w.WriteHeader(http.StatusOK)
 }
 
 func (a *accountsRoutes) GetIDAirlines(w http.ResponseWriter, r *http.Request) {
@@ -101,5 +101,5 @@ func (a *accountsRoutes) PutIDSchema(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeOK(w)
+	w.WriteHeader(http.StatusOK)
 }

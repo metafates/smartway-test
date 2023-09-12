@@ -18,4 +18,6 @@ func RegisterRoutes(router *mux.Router, useCases usecase.UseCases, l logger.Inte
 		Handler(healthHandler{})
 
 	registerAccountsRoutes(v1, useCases.Account, l)
+	registerProvidersRoutes(v1, useCases.Provider, l)
+	registerSchemasRoutes(v1, useCases.Schema, l)
 }

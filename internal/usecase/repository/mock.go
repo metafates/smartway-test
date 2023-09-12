@@ -46,11 +46,19 @@ func (m *MockRepository) GetAccounts(ctx context.Context) ([]entity.Account, err
 }
 
 func (m *MockRepository) DeleteAccount(ctx context.Context, ID int) error {
+	if _, ok := m.accounts[ID]; !ok {
+		return errors.New("account does not exist")
+	}
+
 	delete(m.accounts, ID)
 	return nil
 }
 
 func (m *MockRepository) StoreSchema(ctx context.Context, schema entity.Schema) error {
+	if _, ok := m.schemas[schema.ID]; ok {
+		return errors.New("schema exists")
+	}
+
 	m.schemas[schema.ID] = schema
 	return nil
 }
@@ -73,7 +81,8 @@ func (m *MockRepository) UpdateSchema(ctx context.Context, ID int, changes entit
 		schema.ProvidersIDs = changes.ProvidersIDs
 	}
 
-	m.schemas[ID] = schema
+	delete(m.schemas, ID)
+	m.schemas[schema.ID] = schema
 	return nil
 }
 
@@ -91,11 +100,19 @@ func (m *MockRepository) GetSchemaByName(ctx context.Context, name string) (enti
 }
 
 func (m *MockRepository) DeleteSchema(ctx context.Context, ID int) error {
+	if _, ok := m.schemas[ID]; !ok {
+		return errors.New("schema does not exist")
+	}
+
 	delete(m.schemas, ID)
 	return nil
 }
 
 func (m *MockRepository) StoreProvider(ctx context.Context, provider entity.Provider) error {
+	if _, ok := m.providers[provider.ID]; ok {
+		return errors.New("provider exists")
+	}
+
 	m.providers[provider.ID] = provider
 	return nil
 }
@@ -118,7 +135,8 @@ func (m *MockRepository) UpdateProvider(ctx context.Context, ID int, changes ent
 		provider.AirlinesCodes = changes.AirlinesCodes
 	}
 
-	m.providers[ID] = provider
+	delete(m.providers, ID)
+	m.providers[provider.ID] = provider
 	return nil
 }
 
@@ -143,11 +161,19 @@ func (m *MockRepository) GetProvidersByIDs(ctx context.Context, IDs ...int) ([]e
 }
 
 func (m *MockRepository) DeleteProvider(ctx context.Context, ID int) error {
+	if _, ok := m.providers[ID]; !ok {
+		return errors.New("provider does not exist")
+	}
+
 	delete(m.providers, ID)
 	return nil
 }
 
 func (m *MockRepository) StoreAirline(ctx context.Context, airline entity.Airline) error {
+	if _, ok := m.airlines[airline.Code]; ok {
+		return errors.New("airline exists")
+	}
+
 	m.airlines[airline.Code] = airline
 	return nil
 }
