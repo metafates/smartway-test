@@ -1,0 +1,8 @@
+[http]
+port = 8080
+
+[log]
+level = "debug"
+
+[postgres]
+poolmax = 2

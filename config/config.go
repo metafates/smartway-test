@@ -1,61 +1,84 @@
 package config
 
 import (
-	"bytes"
 	_ "embed"
-	"fmt"
+	"errors"
+	"os"
+	"strings"
 
-	"github.com/ilyakaznacheev/cleanenv"
+	"github.com/go-playground/validator/v10"
+	_ "github.com/go-playground/validator/v10"
+	"github.com/joho/godotenv"
+	"github.com/knadh/koanf/parsers/toml"
+	"github.com/knadh/koanf/providers/env"
+	"github.com/knadh/koanf/providers/rawbytes"
+	"github.com/knadh/koanf/v2"
 )
 
-//go:embed config.yml
+//go:embed config.toml
 var configFile []byte
 
-type (
-	// Config -.
-	Config struct {
-		App  `yaml:"app"`
-		HTTP `yaml:"http"`
-		Log  `yaml:"logger"`
-		PG   `yaml:"postgres"`
+type Config struct {
+	HTTP     HTTPConfig `koanf:"http"`
+	Log      LogConfig  `koanf:"log"`
+	Postgres Postgres   `koanf:"postgres"`
+}
+
+type Postgres struct {
+	URL     string `koanf:"url" validate:"required"`
+	PoolMax int    `koanf:"poolmax"`
+}
+
+type HTTPConfig struct {
+	Port string `koanf:"port"`
+}
+
+type LogConfig struct {
+	Level string `koanf:"level"`
+}
+
+func New() (*Config, error) {
+	if _, err := os.Stat(".env"); err == nil {
+		if err = godotenv.Load(".env"); err != nil {
+			return nil, err
+		}
+	} else if !errors.Is(err, os.ErrNotExist) {
+		return nil, err
 	}
 
-	// App -.
-	App struct {
-		Name    string `env-required:"true" yaml:"name"    env:"APP_NAME"`
-		Version string `env-required:"true" yaml:"version" env:"APP_VERSION"`
-	}
+	k := koanf.New(".")
 
-	// HTTP -.
-	HTTP struct {
-		Port string `env-required:"true" yaml:"port" env:"HTTP_PORT"`
-	}
-
-	// Log -.
-	Log struct {
-		Level string `env-required:"true" yaml:"log_level"   env:"LOG_LEVEL"`
-	}
-
-	// PG -.
-	PG struct {
-		URL     string `env-required:"true"                 env:"PG_URL"`
-		PoolMax int    `env-required:"true" yaml:"pool_max" env:"PG_POOL_MAX"`
-	}
-)
-
-// NewConfig returns app config.
-func NewConfig() (*Config, error) {
-	cfg := &Config{}
-
-	err := cleanenv.ParseYAML(bytes.NewReader(configFile), cfg)
-	if err != nil {
-		return nil, fmt.Errorf("config error: %w", err)
-	}
-
-	err = cleanenv.ReadEnv(cfg)
+	err := k.Load(rawbytes.Provider(configFile), toml.Parser())
 	if err != nil {
 		return nil, err
 	}
 
-	return cfg, nil
+	const envPrefix = "SERVER_"
+	err = k.Load(env.Provider(envPrefix, ".", func(s string) string {
+		return strings.ReplaceAll(
+			strings.ToLower(strings.TrimPrefix(s, envPrefix)),
+			"_",
+			".",
+		)
+	}), nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var config Config
+	err = k.UnmarshalWithConf("", &config, koanf.UnmarshalConf{
+		Tag:       "koanf",
+		FlatPaths: false,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	validate := validator.New()
+	if err := validate.Struct(config); err != nil {
+		return nil, err
+	}
+
+	return &config, nil
 }

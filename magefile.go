@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 
 	"github.com/magefile/mage/mg"
+	"github.com/metafates/smartway-test/config"
 )
 
 var WD = must(os.Getwd())
@@ -79,9 +80,35 @@ func (Docker) ComposeAux() {
 // Generates Dockerfile with ./cmd/app/main.go as an entry point
 func (Docker) Generate() {
 	if _, err := os.Stat("Dockerfile"); errors.Is(err, os.ErrNotExist) {
-		cmd("go", "install", "github.com/zeromicro/go-zero/tools/goctl@latest")
+		mg.Deps(BinDeps)
 
 		goctl := cmd("goctl")
 		goctl("docker", "-go", filepath.Join(WD, "cmd", "app", "main.go"), "--tz", "Europe/Moscow")
 	}
+}
+
+func Migrate(subcommand string) error {
+	cfg, err := config.New()
+	if err != nil {
+		return err
+	}
+
+	goose := cmd(
+		"goose",
+		"-dir",
+		filepath.Join(WD, "migrations"),
+		"postgres",
+		cfg.Postgres.URL,
+		subcommand,
+	)
+
+	goose("status")
+	return nil
+}
+
+// Install binary dependencies using go install
+func BinDeps() {
+	install := cmd("go", "install")
+
+	install("github.com/zeromicro/go-zero/tools/goctl@latest")
 }

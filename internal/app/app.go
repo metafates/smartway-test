@@ -13,18 +13,18 @@ import (
 	"github.com/metafates/smartway-test/internal/usecase/repository"
 	"github.com/metafates/smartway-test/pkg/httpserver"
 	"github.com/metafates/smartway-test/pkg/logger"
+	"github.com/metafates/smartway-test/pkg/postgres"
 )
 
 func Run(cfg *config.Config) {
 	l := logger.New(cfg.Log.Level)
-	//pg, err := postgres.New(cfg.PG.URL, postgres.MaxPoolSize(cfg.PG.PoolMax))
-	//if err != nil {
-	//	l.Fatal(err)
-	//}
-	//defer pg.Close()
-	//
-	//repo := repository.NewPostgresRepository(pg)
-	repo := repository.NewMockRepository()
+	pg, err := postgres.New(cfg.Postgres.URL, postgres.MaxPoolSize(cfg.Postgres.PoolMax))
+	if err != nil {
+		l.Fatal(err)
+	}
+	defer pg.Close()
+
+	repo := repository.NewPostgresRepository(pg)
 	useCases := usecase.UseCases{
 		Account:  usecase.NewAccountUseCase(repo),
 		Schema:   usecase.NewSchemaUseCase(repo),
@@ -49,7 +49,7 @@ func Run(cfg *config.Config) {
 	}
 
 	// Shutdown
-	err := httpServer.Shutdown()
+	err = httpServer.Shutdown()
 	if err != nil {
 		l.Error(fmt.Errorf("app - Run - httpServer.Shutdown: %w", err))
 	}
