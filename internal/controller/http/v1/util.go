@@ -6,9 +6,14 @@ import (
 	"net/http"
 )
 
+func writeOK(w http.ResponseWriter) {
+	w.WriteHeader(http.StatusOK)
+}
+
 func writeJSON(w http.ResponseWriter, value any, code int) {
 	response, err := json.Marshal(value)
 	if err != nil {
+		// TODO: log
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

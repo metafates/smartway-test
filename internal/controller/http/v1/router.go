@@ -17,5 +17,5 @@ func RegisterRoutes(router *mux.Router, useCases usecase.UseCases, l logger.Inte
 		Path("/health").
 		Handler(healthHandler{})
 
-	registerAccountRoutes(v1, useCases.Account, l)
+	registerAccountsRoutes(v1, useCases.Account, l)
 }

@@ -11,25 +11,28 @@ import (
 	"github.com/metafates/smartway-test/pkg/logger"
 )
 
-type accountRoutes struct {
+type accountsRoutes struct {
 	a usecase.Account
 	l logger.Interface
 }
 
-func registerAccountRoutes(router *mux.Router, a usecase.Account, l logger.Interface) {
-	r := &accountRoutes{a, l}
+func registerAccountsRoutes(router *mux.Router, a usecase.Account, l logger.Interface) {
+	r := &accountsRoutes{
+		a: a,
+		l: l,
+	}
 
 	accountsRouter := router.PathPrefix("/accounts/").Subrouter()
 
-	accountRouter := accountsRouter.PathPrefix("/{id:[1-9][0-9]*}").Subrouter()
+	withID := accountsRouter.PathPrefix("/{id:[1-9][0-9]*}").Subrouter()
 
-	accountRouter.NewRoute().Methods(http.MethodPost).HandlerFunc(r.add)
-	accountRouter.NewRoute().Methods(http.MethodDelete).HandlerFunc(r.delete)
-	accountRouter.NewRoute().Methods(http.MethodGet).Path("/airlines").HandlerFunc(r.getAirlines)
-	accountRouter.NewRoute().Methods(http.MethodPut).Path("/schema").HandlerFunc(r.setSchema)
+	withID.NewRoute().Methods(http.MethodPost).HandlerFunc(r.PostID)
+	withID.NewRoute().Methods(http.MethodDelete).HandlerFunc(r.DeleteID)
+	withID.NewRoute().Methods(http.MethodGet).Path("/airlines").HandlerFunc(r.GetIDAirlines)
+	withID.NewRoute().Methods(http.MethodPut).Path("/schema").HandlerFunc(r.PutIDSchema)
 }
 
-func (a *accountRoutes) getID(r *http.Request) int {
+func (a *accountsRoutes) extractID(r *http.Request) int {
 	vars := mux.Vars(r)
 	id, err := strconv.ParseInt(vars["id"], 10, 64)
 	if err != nil {
@@ -39,8 +42,8 @@ func (a *accountRoutes) getID(r *http.Request) int {
 	return int(id)
 }
 
-func (a *accountRoutes) add(w http.ResponseWriter, r *http.Request) {
-	id := a.getID(r)
+func (a *accountsRoutes) PostID(w http.ResponseWriter, r *http.Request) {
+	id := a.extractID(r)
 
 	err := a.a.Add(context.Background(), entity.Account{
 		ID: id,
@@ -51,11 +54,11 @@ func (a *accountRoutes) add(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	writeOK(w)
 }
 
-func (a *accountRoutes) delete(w http.ResponseWriter, r *http.Request) {
-	id := a.getID(r)
+func (a *accountsRoutes) DeleteID(w http.ResponseWriter, r *http.Request) {
+	id := a.extractID(r)
 
 	err := a.a.Delete(context.Background(), id)
 	if err != nil {
@@ -63,11 +66,11 @@ func (a *accountRoutes) delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	writeOK(w)
 }
 
-func (a *accountRoutes) getAirlines(w http.ResponseWriter, r *http.Request) {
-	id := a.getID(r)
+func (a *accountsRoutes) GetIDAirlines(w http.ResponseWriter, r *http.Request) {
+	id := a.extractID(r)
 
 	airlines, err := a.a.GetAirlines(context.Background(), id)
 	if err != nil {
@@ -82,8 +85,8 @@ type setSchemaRequest struct {
 	ID int `json:"id"`
 }
 
-func (a *accountRoutes) setSchema(w http.ResponseWriter, r *http.Request) {
-	id := a.getID(r)
+func (a *accountsRoutes) PutIDSchema(w http.ResponseWriter, r *http.Request) {
+	id := a.extractID(r)
 
 	var request setSchemaRequest
 	err := bindJSON(r, &request)
@@ -98,5 +101,5 @@ func (a *accountRoutes) setSchema(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	writeOK(w)
 }
