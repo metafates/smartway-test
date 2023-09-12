@@ -73,7 +73,6 @@ func (Docker) Compose() {
 func (Docker) ComposeAux() {
 	compose := cmd("docker", "compose")
 
-	compose("down")
 	compose("-f", "docker-compose-aux.yml", "up")
 }
 
@@ -84,7 +83,5 @@ func (Docker) Generate() {
 
 		goctl := cmd("goctl")
 		goctl("docker", "-go", filepath.Join(WD, "cmd", "app", "main.go"), "--tz", "Europe/Moscow")
-
-		// applyGoctlPatch()
 	}
 }
