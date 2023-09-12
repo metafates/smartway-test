@@ -8,11 +8,7 @@ import (
 	"github.com/metafates/smartway-test/pkg/logger"
 )
 
-type UseCases struct {
-	Account usecase.Account
-}
-
-func RegisterRoutes(router *mux.Router, useCases UseCases, l logger.Interface) {
+func RegisterRoutes(router *mux.Router, useCases usecase.UseCases, l logger.Interface) {
 	v1 := router.PathPrefix("/v1/").Subrouter()
 
 	v1.

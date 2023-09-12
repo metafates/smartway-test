@@ -1,0 +1,12 @@
+app:
+  name: 'smartway-test'
+  version: '0.1.0'
+
+http:
+  port: '8080'
+
+logger:
+  log_level: 'debug'
+
+postgres:
+  pool_max: 2

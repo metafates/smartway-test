@@ -3,6 +3,7 @@ package httpserver
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"time"
 )
@@ -47,6 +48,7 @@ func New(handler http.Handler, opts ...Option) *Server {
 }
 
 func (s *Server) start() {
+	log.Printf("server is up and running on addr %s", s.server.Addr)
 	go func() {
 		s.notify <- s.server.ListenAndServe()
 		close(s.notify)

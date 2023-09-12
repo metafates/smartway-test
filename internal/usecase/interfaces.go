@@ -6,6 +6,13 @@ import (
 	"github.com/metafates/smartway-test/internal/entity"
 )
 
+type UseCases struct {
+	Account  Account
+	Schema   Schema
+	Provider Provider
+	Airline  Airline
+}
+
 type (
 	Account interface {
 		Add(ctx context.Context, account entity.Account) error

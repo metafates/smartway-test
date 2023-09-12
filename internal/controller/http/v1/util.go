@@ -6,13 +6,15 @@ import (
 	"net/http"
 )
 
-func writeJSON(w http.ResponseWriter, value any) {
+func writeJSON(w http.ResponseWriter, value any, code int) {
 	response, err := json.Marshal(value)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
 	w.Write(response)
 }
 

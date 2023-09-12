@@ -1,65 +1,57 @@
 package config
 
 import (
-	"strings"
+	"fmt"
+	"path/filepath"
 
-	"github.com/joho/godotenv"
-	"github.com/knadh/koanf/providers/confmap"
-	"github.com/knadh/koanf/providers/env"
-	"github.com/knadh/koanf/v2"
+	"github.com/ilyakaznacheev/cleanenv"
 )
 
-type Config struct {
-	Port string    `koanf:"port"`
-	DB   DBConfig  `koanf:"db"`
-	Log  LogConfig `koanf:"log"`
-}
-
-type DBConfig struct {
-	PostgresURI string `koanf:"postgres"`
-}
-
-type LogConfig struct {
-	Level string `koanf:"level"`
-}
-
-func Load(envFiles ...string) (config *Config, err error) {
-	if err = godotenv.Load(envFiles...); err != nil {
-		return
+type (
+	// Config -.
+	Config struct {
+		App  `yaml:"app"`
+		HTTP `yaml:"http"`
+		Log  `yaml:"logger"`
+		PG   `yaml:"postgres"`
 	}
 
-	k := koanf.New(".")
+	// App -.
+	App struct {
+		Name    string `env-required:"true" yaml:"name"    env:"APP_NAME"`
+		Version string `env-required:"true" yaml:"version" env:"APP_VERSION"`
+	}
 
-	// Default values
-	err = k.Load(confmap.Provider(map[string]any{
-		"port": "1234",
-	}, "."), nil)
+	// HTTP -.
+	HTTP struct {
+		Port string `env-required:"true" yaml:"port" env:"HTTP_PORT"`
+	}
 
+	// Log -.
+	Log struct {
+		Level string `env-required:"true" yaml:"log_level"   env:"LOG_LEVEL"`
+	}
+
+	// PG -.
+	PG struct {
+		PoolMax int    `env-required:"true" yaml:"pool_max" env:"PG_POOL_MAX"`
+		URL     string `env-required:"true"                 env:"PG_URL"`
+	}
+)
+
+// NewConfig returns app config.
+func NewConfig() (*Config, error) {
+	cfg := &Config{}
+
+	err := cleanenv.ReadConfig(filepath.Join("config", "config.yml"), cfg)
 	if err != nil {
-		return
+		return nil, fmt.Errorf("config error: %w", err)
 	}
 
-	const envPrefix = "SERVER_"
-	err = k.Load(env.Provider(envPrefix, ".", func(s string) string {
-		return strings.ReplaceAll(
-			strings.ToLower(strings.TrimPrefix(s, envPrefix)),
-			"_",
-			".",
-		)
-	}), nil)
-
+	err = cleanenv.ReadEnv(cfg)
 	if err != nil {
-		return
+		return nil, err
 	}
 
-	err = k.UnmarshalWithConf("", &config, koanf.UnmarshalConf{
-		Tag:       "koanf",
-		FlatPaths: false,
-	})
-
-	if err != nil {
-		return
-	}
-
-	return
+	return cfg, nil
 }

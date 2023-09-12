@@ -20,7 +20,7 @@ func registerAccountRoutes(router *mux.Router, a usecase.Account, l logger.Inter
 
 	accountsRouter := router.PathPrefix("/accounts/").Subrouter()
 
-	accountRouter := accountsRouter.PathPrefix("/{id:[1-9][0-9]*}/").Subrouter()
+	accountRouter := accountsRouter.PathPrefix("/{id:[1-9][0-9]*}").Subrouter()
 
 	accountRouter.NewRoute().Methods(http.MethodPost).HandlerFunc(r.add)
 	accountRouter.NewRoute().Methods(http.MethodDelete).HandlerFunc(r.delete)
@@ -67,7 +67,7 @@ func (a *accountRoutes) getAirlines(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSON(w, airlines)
+	writeJSON(w, airlines, http.StatusOK)
 }
 
 type setSchemaRequest struct {
