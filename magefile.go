@@ -54,11 +54,37 @@ func Run() {
 
 type Docker mg.Namespace
 
+// Rebuilds the Dockerfile
+func (Docker) Rebuild() {
+	compose := cmd("docker", "compose")
+
+	compose("up", "-d", "--no-deps", "--build", "server")
+	compose("down")
+}
+
+// Start all containers
+func (Docker) Compose() {
+	compose := cmd("docker", "compose")
+
+	compose("up")
+}
+
+// Start only aux container (db + webUI)
+func (Docker) ComposeAux() {
+	compose := cmd("docker", "compose")
+
+	compose("down")
+	compose("-f", "docker-compose-aux.yml", "up")
+}
+
 // Generates Dockerfile with ./cmd/app/main.go as an entry point
 func (Docker) Generate() {
 	if _, err := os.Stat("Dockerfile"); errors.Is(err, os.ErrNotExist) {
-		goctl := cmd("go", "run", "github.com/zeromicro/go-zero/tools/goctl@latest")
+		cmd("go", "install", "github.com/zeromicro/go-zero/tools/goctl@latest")
 
+		goctl := cmd("goctl")
 		goctl("docker", "-go", filepath.Join(WD, "cmd", "app", "main.go"), "--tz", "Europe/Moscow")
+
+		// applyGoctlPatch()
 	}
 }
