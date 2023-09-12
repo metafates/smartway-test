@@ -26,5 +26,5 @@ type Account struct {
 	ID AccountID `json:"id,omitempty"`
 
 	// Schema is a Schema that this account is assigned to
-	Schema SchemaID `json:"-"`
+	Schema SchemaID `json:"schemaId"`
 }

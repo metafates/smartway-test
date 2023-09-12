@@ -29,11 +29,11 @@ func (s *SchemaID) UnmarshalJSON(data []byte) error {
 
 type Schema struct {
 	// Name unique name of the schema
-	Name string `json:"name,omitempty"`
+	Name string `json:"name"`
 
 	// ID of the schema
 	ID SchemaID `json:"id"`
 
 	// Providers that this schema shows
-	Providers *hashset.Set[ProviderID] `json:"-"`
+	Providers *hashset.Set[ProviderID] `json:"providers"`
 }
