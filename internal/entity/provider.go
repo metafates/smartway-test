@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"encoding/json"
 	"errors"
 	"regexp"
 
@@ -21,6 +22,15 @@ func (p *ProviderID) UnmarshalText(text []byte) error {
 
 	*p = ProviderID(id)
 	return nil
+}
+
+func (p *ProviderID) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
+		return err
+	}
+
+	return p.UnmarshalText([]byte(s))
 }
 
 type Provider struct {

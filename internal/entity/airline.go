@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"encoding/json"
 	"errors"
 	"regexp"
 
@@ -9,7 +10,7 @@ import (
 
 type AirlineCode string
 
-var airlineCodePattern = regexp.MustCompile(`[0-9A-Z\x{0400}-\x{04FF}]{2}`)
+var airlineCodePattern = regexp.MustCompile(`^[0-9A-Z\x{0400}-\x{04FF}]{2}$`)
 
 func (a *AirlineCode) UnmarshalText(text []byte) error {
 	matches := airlineCodePattern.Match(text)
@@ -20,6 +21,15 @@ func (a *AirlineCode) UnmarshalText(text []byte) error {
 
 	*a = AirlineCode(text)
 	return nil
+}
+
+func (a *AirlineCode) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
+		return err
+	}
+
+	return a.UnmarshalText([]byte(s))
 }
 
 type Airline struct {

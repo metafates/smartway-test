@@ -2,7 +2,6 @@ package v1
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -17,15 +16,15 @@ type airlinesRoutes struct {
 	a usecase.Airline
 }
 
-func registerAirlinesRoutes(router *mux.Route, a usecase.Airline, l logger.Interface) {
+func registerAirlinesRoutes(router *mux.Router, a usecase.Airline, l logger.Interface) {
 	r := &airlinesRoutes{
 		l: l,
 		a: a,
 	}
 
-	accountsRouter := router.PathPrefix("/airlines/").Subrouter()
+	airlinesRouter := router.PathPrefix("/airlines/").Subrouter()
 
-	withCode := accountsRouter.PathPrefix("/{code}").Subrouter()
+	withCode := airlinesRouter.PathPrefix("/{code}").Subrouter()
 
 	withCode.NewRoute().Methods(http.MethodPost).HandlerFunc(r.PostID)
 	withCode.NewRoute().Methods(http.MethodDelete).HandlerFunc(r.DeleteID)
@@ -36,7 +35,9 @@ func (a *airlinesRoutes) extractCode(r *http.Request) (entity.AirlineCode, error
 	vars := mux.Vars(r)
 
 	var code entity.AirlineCode
-	if err := json.Unmarshal([]byte(vars["code"]), &code); err != nil {
+
+	err := code.UnmarshalText([]byte(vars["code"]))
+	if err != nil {
 		return "", err
 	}
 

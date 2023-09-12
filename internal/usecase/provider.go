@@ -26,7 +26,7 @@ func (p ProviderUseCase) Add(ctx context.Context, provider entity.Provider) erro
 }
 
 func (p ProviderUseCase) Delete(ctx context.Context, ID entity.ProviderID) error {
-	return p.Delete(ctx, ID)
+	return p.repo.DeleteProvider(ctx, ID)
 }
 
 func (p ProviderUseCase) GetAirlines(ctx context.Context, ID entity.ProviderID) ([]entity.Airline, error) {

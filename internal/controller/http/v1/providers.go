@@ -2,7 +2,6 @@ package v1
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -35,7 +34,9 @@ func (p *providersRoutes) extractID(r *http.Request) (entity.ProviderID, error) 
 	vars := mux.Vars(r)
 
 	var id entity.ProviderID
-	if err := json.Unmarshal([]byte(vars["id"]), &id); err != nil {
+
+	err := id.UnmarshalText([]byte(vars["id"]))
+	if err != nil {
 		return "", err
 	}
 

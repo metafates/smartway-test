@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"encoding/json"
 	"errors"
 	"strconv"
 )
@@ -19,6 +20,15 @@ func (a *AccountID) UnmarshalText(text []byte) error {
 
 	*a = AccountID(id)
 	return nil
+}
+
+func (a *AccountID) UnmarshalJSON(data []byte) error {
+	var number int
+	if err := json.Unmarshal(data, &number); err != nil {
+		return err
+	}
+
+	return a.UnmarshalText([]byte(strconv.Itoa(number)))
 }
 
 type Account struct {

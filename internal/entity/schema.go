@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"encoding/json"
 	"errors"
 	"strconv"
 
@@ -24,7 +25,12 @@ func (s *SchemaID) UnmarshalText(text []byte) error {
 }
 
 func (s *SchemaID) UnmarshalJSON(data []byte) error {
-	return s.UnmarshalText(data)
+	var number int
+	if err := json.Unmarshal(data, &number); err != nil {
+		return err
+	}
+
+	return s.UnmarshalText([]byte(strconv.Itoa(number)))
 }
 
 type Schema struct {

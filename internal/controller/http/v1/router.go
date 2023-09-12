@@ -20,4 +20,5 @@ func RegisterRoutes(router *mux.Router, useCases usecase.UseCases, l logger.Inte
 	registerAccountsRoutes(v1, useCases.Account, l)
 	registerProvidersRoutes(v1, useCases.Provider, l)
 	registerSchemasRoutes(v1, useCases.Schema, l)
+	registerAirlinesRoutes(v1, useCases.Airline, l)
 }

@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/metafates/smartway-test/internal/entity"
+	"github.com/metafates/smartway-test/internal/pkg/hashset"
 	"github.com/metafates/smartway-test/internal/usecase"
 	"github.com/samber/lo"
 )
@@ -59,6 +60,10 @@ func (m *MockRepository) StoreSchema(ctx context.Context, schema entity.Schema) 
 		return errors.New("schema exists")
 	}
 
+	if schema.Providers == nil {
+		schema.Providers = hashset.New[entity.ProviderID]()
+	}
+
 	m.schemas[schema.ID] = schema
 	return nil
 }
@@ -111,6 +116,10 @@ func (m *MockRepository) DeleteSchema(ctx context.Context, ID entity.SchemaID) e
 func (m *MockRepository) StoreProvider(ctx context.Context, provider entity.Provider) error {
 	if _, ok := m.providers[provider.ID]; ok {
 		return errors.New("provider exists")
+	}
+
+	if provider.Airlines == nil {
+		provider.Airlines = hashset.New[entity.AirlineCode]()
 	}
 
 	m.providers[provider.ID] = provider
@@ -172,6 +181,10 @@ func (m *MockRepository) DeleteProvider(ctx context.Context, ID entity.ProviderI
 func (m *MockRepository) StoreAirline(ctx context.Context, airline entity.Airline) error {
 	if _, ok := m.airlines[airline.Code]; ok {
 		return errors.New("airline exists")
+	}
+
+	if airline.Providers == nil {
+		airline.Providers = hashset.New[entity.ProviderID]()
 	}
 
 	m.airlines[airline.Code] = airline

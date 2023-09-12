@@ -2,7 +2,6 @@ package v1
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -36,7 +35,9 @@ func (s *schemasRoutes) extractID(r *http.Request) (entity.SchemaID, error) {
 	vars := mux.Vars(r)
 
 	var id entity.SchemaID
-	if err := json.Unmarshal([]byte(vars["id"]), &id); err != nil {
+
+	err := id.UnmarshalText([]byte(vars["id"]))
+	if err != nil {
 		return 0, err
 	}
 
