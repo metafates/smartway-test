@@ -39,3 +39,8 @@ type Airline struct {
 	// Providers that provide this airline
 	Providers *hashset.Set[ProviderID] `json:"-"`
 }
+
+// AirlineChanges that can be applied
+type AirlineChanges struct {
+	Providers *hashset.Set[ProviderID] `json:"providers,omitempty"`
+}

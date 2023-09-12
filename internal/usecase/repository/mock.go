@@ -55,6 +55,27 @@ func (m *MockRepository) DeleteAccount(ctx context.Context, ID entity.AccountID)
 	return nil
 }
 
+func (m *MockRepository) UpdateAccount(ctx context.Context, ID entity.AccountID, changes entity.AccountChanges) error {
+	account, ok := m.accounts[ID]
+
+	if !ok {
+		return errors.New("account does not exist")
+	}
+
+	if changes.Schema != nil {
+		schema := *changes.Schema
+
+		if _, ok := m.schemas[schema]; !ok {
+			return errors.New("schema does not exist")
+		}
+
+		account.Schema = schema
+	}
+
+	m.accounts[ID] = account
+	return nil
+}
+
 func (m *MockRepository) StoreSchema(ctx context.Context, schema entity.Schema) error {
 	if _, ok := m.schemas[schema.ID]; ok {
 		return errors.New("schema exists")
@@ -68,26 +89,28 @@ func (m *MockRepository) StoreSchema(ctx context.Context, schema entity.Schema) 
 	return nil
 }
 
-func (m *MockRepository) UpdateSchema(ctx context.Context, ID entity.SchemaID, changes entity.Schema) error {
+func (m *MockRepository) UpdateSchema(ctx context.Context, ID entity.SchemaID, changes entity.SchemaChanges) error {
 	schema, ok := m.schemas[ID]
 	if !ok {
 		return errors.New("schema not found")
 	}
 
-	if changes.Name != "" {
-		schema.Name = changes.Name
-	}
-
-	if changes.ID != 0 {
-		schema.ID = changes.ID
+	if changes.Name != nil {
+		schema.Name = *changes.Name
 	}
 
 	if changes.Providers != nil {
+		// check that all providers are valid
+		for _, providerID := range changes.Providers.Values() {
+			if _, ok := m.providers[providerID]; !ok {
+				return errors.New("provider not found")
+			}
+		}
+
 		schema.Providers = changes.Providers
 	}
 
-	delete(m.schemas, ID)
-	m.schemas[schema.ID] = schema
+	m.schemas[ID] = schema
 	return nil
 }
 
@@ -126,26 +149,17 @@ func (m *MockRepository) StoreProvider(ctx context.Context, provider entity.Prov
 	return nil
 }
 
-func (m *MockRepository) UpdateProvider(ctx context.Context, ID entity.ProviderID, changes entity.Provider) error {
+func (m *MockRepository) UpdateProvider(ctx context.Context, ID entity.ProviderID, changes entity.ProviderChanges) error {
 	provider, ok := m.providers[ID]
 	if !ok {
 		return errors.New("provider not found")
 	}
 
-	if changes.Name != "" {
-		provider.Name = changes.Name
+	if changes.Name != nil {
+		provider.Name = *changes.Name
 	}
 
-	if changes.ID != "" {
-		provider.ID = changes.ID
-	}
-
-	if changes.Airlines != nil {
-		provider.Airlines = changes.Airlines
-	}
-
-	delete(m.providers, ID)
-	m.providers[provider.ID] = provider
+	m.providers[ID] = provider
 	return nil
 }
 
@@ -172,6 +186,11 @@ func (m *MockRepository) GetProvidersByIDs(ctx context.Context, IDs ...entity.Pr
 func (m *MockRepository) DeleteProvider(ctx context.Context, ID entity.ProviderID) error {
 	if _, ok := m.providers[ID]; !ok {
 		return errors.New("provider does not exist")
+	}
+
+	for _, schema := range m.schemas {
+		schema.Providers.Remove(ID)
+		m.schemas[schema.ID] = schema
 	}
 
 	delete(m.providers, ID)
@@ -220,6 +239,38 @@ func (m *MockRepository) DeleteAirline(ctx context.Context, code entity.AirlineC
 		return errors.New("airline does not exist")
 	}
 
+	for _, provider := range m.providers {
+		provider.Airlines.Remove(code)
+		m.providers[provider.ID] = provider
+	}
+
 	delete(m.airlines, code)
+	return nil
+}
+
+func (m *MockRepository) UpdateAirline(ctx context.Context, code entity.AirlineCode, changes entity.AirlineChanges) error {
+	airline, ok := m.airlines[code]
+	if !ok {
+		return errors.New("airline does not exist")
+	}
+
+	if changes.Providers != nil {
+		// remove this airline from old providers
+		for _, providerID := range airline.Providers.Values() {
+			provider := m.providers[providerID]
+			provider.Airlines.Remove(code)
+			m.providers[providerID] = provider
+		}
+
+		// add this airline to new providers
+		for _, providerID := range changes.Providers.Values() {
+			provider := m.providers[providerID]
+			provider.Airlines.Put(code)
+			m.providers[providerID] = provider
+		}
+
+		airline.Providers = changes.Providers
+	}
+
 	return nil
 }

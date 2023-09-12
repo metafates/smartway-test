@@ -28,6 +28,7 @@ func registerSchemasRoutes(router *mux.Router, s usecase.Schema, l logger.Interf
 	withID := schemasRouter.PathPrefix("/{id}").Subrouter()
 
 	withID.NewRoute().Methods(http.MethodPost).HandlerFunc(r.PostID)
+	withID.NewRoute().Methods(http.MethodDelete).HandlerFunc(r.DeleteID)
 	withID.NewRoute().Methods(http.MethodPut).HandlerFunc(r.PutID)
 }
 
@@ -71,6 +72,22 @@ func (s *schemasRoutes) PostID(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
+func (s *schemasRoutes) DeleteID(w http.ResponseWriter, r *http.Request) {
+	id, err := s.extractID(r)
+	if err != nil {
+		writeError(w, err)
+		return
+	}
+
+	err = s.s.Delete(context.Background(), id)
+	if err != nil {
+		writeError(w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
 func (s *schemasRoutes) PutID(w http.ResponseWriter, r *http.Request) {
 	id, err := s.extractID(r)
 	if err != nil {
@@ -78,7 +95,7 @@ func (s *schemasRoutes) PutID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var request entity.Schema
+	var request entity.SchemaChanges
 	if err := bindJSON(r, &request); err != nil {
 		writeError(w, err)
 		return

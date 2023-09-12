@@ -17,19 +17,37 @@ func New[T comparable]() *Set[T] {
 	}
 }
 
+func (s *Set[T]) PutAll(values []T) {
+	for _, value := range values {
+		s.Put(value)
+	}
+}
+
 func (s *Set[T]) Values() []T {
 	return lo.Keys(s.m)
 }
 
 func (s *Set[T]) Clear() {
+	if s.m == nil {
+		return
+	}
+
 	maps.Clear(s.m)
 }
 
 func (s *Set[T]) Put(value T) {
+	if s.m == nil {
+		return
+	}
+
 	s.m[value] = struct{}{}
 }
 
 func (s *Set[T]) Has(value T) bool {
+	if s.m == nil {
+		return false
+	}
+
 	_, ok := s.m[value]
 	return ok
 }

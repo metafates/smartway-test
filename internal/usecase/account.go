@@ -31,27 +31,9 @@ func (a *AccountUseCase) Delete(ctx context.Context, ID entity.AccountID) error 
 }
 
 func (a *AccountUseCase) SetSchema(ctx context.Context, accountID entity.AccountID, schemaID entity.SchemaID) error {
-	account, accountExists, err := a.repo.GetAccountByID(ctx, accountID)
-	if err != nil {
-		return err
-	}
-
-	if !accountExists {
-		return ErrAccountNotFound
-	}
-
-	_, schemaFound, err := a.repo.GetSchemaByID(ctx, schemaID)
-	if err != nil {
-		return err
-	}
-
-	if !schemaFound {
-		return ErrSchemaNotFound
-	}
-
-	account.Schema = schemaID
-
-	return a.repo.StoreAccount(ctx, account)
+	return a.repo.UpdateAccount(ctx, accountID, entity.AccountChanges{
+		Schema: &schemaID,
+	})
 }
 
 func (a *AccountUseCase) GetAirlines(ctx context.Context, ID entity.AccountID) ([]entity.Airline, error) {

@@ -43,3 +43,9 @@ type Schema struct {
 	// Providers that this schema shows
 	Providers *hashset.Set[ProviderID] `json:"providers"`
 }
+
+// SchemaChanges that can be applied
+type SchemaChanges struct {
+	Name      *string                  `json:"name,omitempty"`
+	Providers *hashset.Set[ProviderID] `json:"providers,omitempty"`
+}

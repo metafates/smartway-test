@@ -38,3 +38,8 @@ type Account struct {
 	// Schema is a Schema that this account is assigned to
 	Schema SchemaID `json:"schemaId"`
 }
+
+// AccountChanges that can be applied
+type AccountChanges struct {
+	Schema *SchemaID `json:"schemaId,omitempty"`
+}

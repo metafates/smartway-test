@@ -51,7 +51,7 @@ func (s *SchemaUseCase) Delete(ctx context.Context, ID entity.SchemaID) error {
 	return s.repo.DeleteSchema(ctx, ID)
 }
 
-func (s *SchemaUseCase) Update(ctx context.Context, ID entity.SchemaID, changes entity.Schema) error {
+func (s *SchemaUseCase) Update(ctx context.Context, ID entity.SchemaID, changes entity.SchemaChanges) error {
 	return s.repo.UpdateSchema(ctx, ID, changes)
 }
 
