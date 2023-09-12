@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 
+	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/metafates/smartway-test/internal/entity"
 	"github.com/metafates/smartway-test/internal/usecase"
 	"github.com/metafates/smartway-test/pkg/postgres"
@@ -15,8 +16,9 @@ type PostgresRepository struct {
 }
 
 func (p *PostgresRepository) StoreAccount(ctx context.Context, account entity.Account) error {
-	//TODO implement me
-	panic("implement me")
+	return p.Pool.AcquireFunc(ctx, func(conn *pgxpool.Conn) error {
+		return nil
+	})
 }
 
 func (p *PostgresRepository) GetAccountByID(ctx context.Context, ID entity.AccountID) (entity.Account, bool, error) {

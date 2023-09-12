@@ -1,12 +1,43 @@
 package entity
 
 import (
+	"database/sql"
+	"database/sql/driver"
 	"encoding/json"
 	"errors"
 	"strconv"
 )
 
+var (
+	_ sql.Scanner   = (*AccountID)(nil)
+	_ driver.Valuer = (*AccountID)(nil)
+)
+
 type AccountID int
+
+func (a *AccountID) Value() (driver.Value, error) {
+	return int64(*a), nil
+}
+
+func (a *AccountID) Scan(src any) error {
+	if src == nil {
+		*a = 0
+		return nil
+	}
+
+	iv, err := driver.Int32.ConvertValue(src)
+	if err == nil {
+		return err
+	}
+
+	value, ok := iv.(int)
+	if !ok {
+		return errors.New("failed to scan account id")
+	}
+
+	*a = AccountID(value)
+	return nil
+}
 
 func (a *AccountID) UnmarshalText(text []byte) error {
 	id, err := strconv.ParseInt(string(text), 10, 64)

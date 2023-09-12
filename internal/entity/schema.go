@@ -1,6 +1,8 @@
 package entity
 
 import (
+	"database/sql"
+	"database/sql/driver"
 	"encoding/json"
 	"errors"
 	"strconv"
@@ -8,7 +10,36 @@ import (
 	"github.com/metafates/smartway-test/internal/pkg/hashset"
 )
 
+var (
+	_ sql.Scanner   = (*SchemaID)(nil)
+	_ driver.Valuer = (*SchemaID)(nil)
+)
+
 type SchemaID int
+
+func (s *SchemaID) Value() (driver.Value, error) {
+	return int64(*s), nil
+}
+
+func (s *SchemaID) Scan(src any) error {
+	if src == nil {
+		*s = 0
+		return nil
+	}
+
+	iv, err := driver.Int32.ConvertValue(src)
+	if err != nil {
+		return err
+	}
+
+	value, ok := iv.(int)
+	if !ok {
+		return errors.New("failed to scan schema id")
+	}
+
+	*s = SchemaID(value)
+	return nil
+}
 
 func (s *SchemaID) UnmarshalText(text []byte) error {
 	id, err := strconv.ParseInt(string(text), 10, 64)

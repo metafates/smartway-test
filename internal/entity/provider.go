@@ -1,6 +1,8 @@
 package entity
 
 import (
+	"database/sql"
+	"database/sql/driver"
 	"encoding/json"
 	"errors"
 	"regexp"
@@ -8,7 +10,36 @@ import (
 	"github.com/metafates/smartway-test/internal/pkg/hashset"
 )
 
+var (
+	_ sql.Scanner   = (*ProviderID)(nil)
+	_ driver.Valuer = (*ProviderID)(nil)
+)
+
 type ProviderID string
+
+func (p *ProviderID) Value() (driver.Value, error) {
+	return string(*p), nil
+}
+
+func (p *ProviderID) Scan(src any) error {
+	if src == nil {
+		*p = ""
+		return nil
+	}
+
+	sv, err := driver.String.ConvertValue(src)
+	if err != nil {
+		return err
+	}
+
+	value, ok := sv.(string)
+	if !ok {
+		return errors.New("failed to scan provider id")
+	}
+
+	*p = ProviderID(value)
+	return nil
+}
 
 var providerIDPattern = regexp.MustCompile(`^[A-Z]{2}$`)
 
