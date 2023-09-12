@@ -3,6 +3,8 @@ package entity
 import (
 	"errors"
 	"regexp"
+
+	"github.com/metafates/smartway-test/internal/pkg/hashset"
 )
 
 type AirlineCode string
@@ -25,5 +27,5 @@ type Airline struct {
 	Name string      `json:"name,omitempty"`
 
 	// Providers that provide this airline
-	Providers map[ProviderID]struct{} `json:"-"`
+	Providers *hashset.Set[ProviderID] `json:"-"`
 }

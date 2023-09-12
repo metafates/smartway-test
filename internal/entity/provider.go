@@ -3,6 +3,8 @@ package entity
 import (
 	"errors"
 	"regexp"
+
+	"github.com/metafates/smartway-test/internal/pkg/hashset"
 )
 
 type ProviderID string
@@ -22,9 +24,9 @@ func (p *ProviderID) UnmarshalText(text []byte) error {
 }
 
 type Provider struct {
-	ID   ProviderID `json:"code,omitempty"`
+	ID   ProviderID `json:"id,omitempty"`
 	Name string     `json:"name,omitempty"`
 
 	// Airlines that this provider provides
-	Airlines map[AirlineCode]struct{} `json:"-"`
+	Airlines *hashset.Set[AirlineCode] `json:"-"`
 }

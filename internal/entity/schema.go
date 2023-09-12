@@ -3,6 +3,8 @@ package entity
 import (
 	"errors"
 	"strconv"
+
+	"github.com/metafates/smartway-test/internal/pkg/hashset"
 )
 
 type SchemaID int
@@ -32,6 +34,6 @@ type Schema struct {
 	// ID of the schema
 	ID SchemaID `json:"id"`
 
-	// ProvidersIDs that this schema shows
-	ProvidersIDs map[ProviderID]struct{} `json:"-"`
+	// Providers that this schema shows
+	Providers *hashset.Set[ProviderID] `json:"-"`
 }

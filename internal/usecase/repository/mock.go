@@ -77,8 +77,8 @@ func (m *MockRepository) UpdateSchema(ctx context.Context, ID entity.SchemaID, c
 		schema.ID = changes.ID
 	}
 
-	if changes.ProvidersIDs != nil {
-		schema.ProvidersIDs = changes.ProvidersIDs
+	if changes.Providers != nil {
+		schema.Providers = changes.Providers
 	}
 
 	delete(m.schemas, ID)

@@ -73,7 +73,7 @@ func (a *AccountUseCase) GetAirlines(ctx context.Context, ID entity.AccountID) (
 		return nil, ErrSchemaNotFound
 	}
 
-	providersIDs := lo.Keys(schema.ProvidersIDs)
+	providersIDs := lo.Keys(schema.Providers)
 
 	providers, err := a.repo.GetProvidersByIDs(ctx, providersIDs...)
 	if err != nil {
