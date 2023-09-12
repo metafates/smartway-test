@@ -17,6 +17,14 @@ func New[T comparable]() *Set[T] {
 	}
 }
 
+func (s *Set[T]) IsEmpty() bool {
+	return s.Len() == 0
+}
+
+func (s *Set[T]) Len() int {
+	return len(s.m)
+}
+
 func (s *Set[T]) PutAll(values []T) {
 	for _, value := range values {
 		s.Put(value)
