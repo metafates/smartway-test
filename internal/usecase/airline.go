@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	"github.com/metafates/smartway-test/internal/entity"
-	"golang.org/x/exp/maps"
 )
 
 var (
@@ -45,10 +44,10 @@ func (a *AirlineUseCase) SetProviders(ctx context.Context, airlineCode entity.Ai
 	//
 	// maybe this?
 	// https://www.conf42.com/Golang_2023_Ilia_Sergunin_transaction_management_repository_pattern
-	maps.Clear(airline.Providers)
+	airline.Providers.Clear()
 	for _, provider := range providers {
-		airline.Providers[provider.ID] = struct{}{}
-		provider.Airlines[airline.Code] = struct{}{}
+		airline.Providers.Put(provider.ID)
+		provider.Airlines.Put(airline.Code)
 
 		err := a.repo.UpdateProvider(ctx, provider.ID, entity.Provider{
 			Airlines: provider.Airlines,

@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/metafates/smartway-test/internal/entity"
-	"github.com/samber/lo"
+	"github.com/metafates/smartway-test/internal/pkg/hashset"
 )
 
 var (
@@ -73,19 +73,17 @@ func (a *AccountUseCase) GetAirlines(ctx context.Context, ID entity.AccountID) (
 		return nil, ErrSchemaNotFound
 	}
 
-	providersIDs := lo.Keys(schema.Providers)
-
-	providers, err := a.repo.GetProvidersByIDs(ctx, providersIDs...)
+	providers, err := a.repo.GetProvidersByIDs(ctx, schema.Providers.Values()...)
 	if err != nil {
 		return nil, err
 	}
 
-	var airlinesCodes map[entity.AirlineCode]struct{}
+	airlinesCodes := hashset.New[entity.AirlineCode]()
 	for _, provider := range providers {
-		for code := range provider.Airlines {
-			airlinesCodes[code] = struct{}{}
+		for _, code := range provider.Airlines.Values() {
+			airlinesCodes.Put(code)
 		}
 	}
 
-	return a.repo.GetAirlinesByCodes(ctx, lo.Keys(airlinesCodes)...)
+	return a.repo.GetAirlinesByCodes(ctx, airlinesCodes.Values()...)
 }

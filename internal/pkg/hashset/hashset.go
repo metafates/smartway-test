@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/samber/lo"
+	"golang.org/x/exp/maps"
 )
 
 type Set[T comparable] struct {
@@ -14,6 +15,14 @@ func New[T comparable]() *Set[T] {
 	return &Set[T]{
 		m: make(map[T]struct{}),
 	}
+}
+
+func (s *Set[T]) Values() []T {
+	return lo.Keys(s.m)
+}
+
+func (s *Set[T]) Clear() {
+	maps.Clear(s.m)
 }
 
 func (s *Set[T]) Put(value T) {

@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	"github.com/metafates/smartway-test/internal/entity"
-	"github.com/samber/lo"
 )
 
 var (
@@ -40,5 +39,5 @@ func (p ProviderUseCase) GetAirlines(ctx context.Context, ID entity.ProviderID) 
 		return nil, ErrProviderNotFound
 	}
 
-	return p.repo.GetAirlinesByCodes(ctx, lo.Keys(provider.Airlines)...)
+	return p.repo.GetAirlinesByCodes(ctx, provider.Airlines.Values()...)
 }
