@@ -15,7 +15,9 @@ func RegisterRoutes(router *mux.Router, useCases usecase.UseCases, l logger.Inte
 		NewRoute().
 		Methods(http.MethodGet).
 		Path("/health").
-		Handler(healthHandler{})
+		HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+		})
 
 	registerAccountsRoutes(v1, useCases.Account, l)
 	registerProvidersRoutes(v1, useCases.Provider, l)
