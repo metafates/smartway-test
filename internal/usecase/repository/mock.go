@@ -201,3 +201,12 @@ func (m *MockRepository) GetAirlinesByCodes(ctx context.Context, codes ...entity
 
 	return airlines, nil
 }
+
+func (m *MockRepository) DeleteAirline(ctx context.Context, code entity.AirlineCode) error {
+	if _, ok := m.airlines[code]; !ok {
+		return errors.New("airline does not exist")
+	}
+
+	delete(m.airlines, code)
+	return nil
+}

@@ -42,10 +42,6 @@ func (p *providersRoutes) extractID(r *http.Request) (entity.ProviderID, error) 
 	return id, nil
 }
 
-type postProvidersIDRequest struct {
-	Name string `json:"name,omitempty"`
-}
-
 func (p *providersRoutes) PostID(w http.ResponseWriter, r *http.Request) {
 	id, err := p.extractID(r)
 	if err != nil {
@@ -53,7 +49,9 @@ func (p *providersRoutes) PostID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var request postProvidersIDRequest
+	var request struct {
+		Name string `json:"name,omitempty"`
+	}
 	if err := bindJSON(r, &request); err != nil {
 		writeError(w, err)
 		return

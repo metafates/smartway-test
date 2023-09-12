@@ -21,6 +21,10 @@ func NewAirlineUseCase(repository Repository) *AirlineUseCase {
 	return &AirlineUseCase{repo: repository}
 }
 
+func (a *AirlineUseCase) Delete(ctx context.Context, code entity.AirlineCode) error {
+	return a.repo.DeleteAirline(ctx, code)
+}
+
 func (a *AirlineUseCase) Add(ctx context.Context, airline entity.Airline) error {
 	return a.repo.StoreAirline(ctx, airline)
 }

@@ -22,9 +22,11 @@ func registerSchemasRoutes(router *mux.Router, s usecase.Schema, l logger.Interf
 		s: s,
 	}
 
-	accountsRouter := router.PathPrefix("/schemas/").Subrouter()
+	schemasRouter := router.PathPrefix("/schemas/").Subrouter()
 
-	withID := accountsRouter.PathPrefix("/{id}").Subrouter()
+	schemasRouter.NewRoute().Methods(http.MethodGet).Path("/find").Queries("name", "{name}").HandlerFunc(r.GetSearch)
+
+	withID := schemasRouter.PathPrefix("/{id}").Subrouter()
 
 	withID.NewRoute().Methods(http.MethodPost).HandlerFunc(r.PostID)
 	withID.NewRoute().Methods(http.MethodPut).HandlerFunc(r.PutID)
@@ -41,10 +43,6 @@ func (s *schemasRoutes) extractID(r *http.Request) (entity.SchemaID, error) {
 	return id, nil
 }
 
-type postSchemasIDRequest struct {
-	Name string `json:"name"`
-}
-
 func (s *schemasRoutes) PostID(w http.ResponseWriter, r *http.Request) {
 	id, err := s.extractID(r)
 	if err != nil {
@@ -52,7 +50,9 @@ func (s *schemasRoutes) PostID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var request postSchemasIDRequest
+	var request struct {
+		Name string `json:"name"`
+	}
 	if err := bindJSON(r, &request); err != nil {
 		writeError(w, err)
 		return
@@ -89,4 +89,22 @@ func (s *schemasRoutes) PutID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+
+func (s *schemasRoutes) GetSearch(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	name := vars["name"]
+
+	schema, found, err := s.s.Find(context.Background(), name)
+	if err != nil {
+		writeError(w, err)
+		return
+	}
+
+	if !found {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	writeJSON(w, schema, http.StatusOK)
 }

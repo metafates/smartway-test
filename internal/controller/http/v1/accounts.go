@@ -94,10 +94,6 @@ func (a *accountsRoutes) GetIDAirlines(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, airlines, http.StatusOK)
 }
 
-type setSchemaRequest struct {
-	ID entity.SchemaID `json:"id"`
-}
-
 func (a *accountsRoutes) PutIDSchema(w http.ResponseWriter, r *http.Request) {
 	id, err := a.extractID(r)
 	if err != nil {
@@ -105,7 +101,10 @@ func (a *accountsRoutes) PutIDSchema(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var request setSchemaRequest
+	var request struct {
+		ID entity.SchemaID `json:"id"`
+	}
+
 	err = bindJSON(r, &request)
 	if err != nil {
 		writeError(w, err)

@@ -14,6 +14,11 @@ type PostgresRepository struct {
 	*postgres.Postgres
 }
 
+func (p PostgresRepository) DeleteAirline(ctx context.Context, code entity.AirlineCode) error {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (p PostgresRepository) StoreAccount(ctx context.Context, account entity.Account) error {
 	//TODO implement me
 	panic("implement me")

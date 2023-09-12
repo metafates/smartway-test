@@ -36,6 +36,7 @@ type (
 
 	Airline interface {
 		Add(ctx context.Context, airline entity.Airline) error
+		Delete(ctx context.Context, code entity.AirlineCode) error
 		SetProviders(ctx context.Context, airlineCode entity.AirlineCode, providersIDs []entity.ProviderID) error
 	}
 
@@ -60,5 +61,6 @@ type (
 		StoreAirline(ctx context.Context, airline entity.Airline) error
 		GetAirlineByCode(ctx context.Context, code entity.AirlineCode) (entity.Airline, bool, error)
 		GetAirlinesByCodes(ctx context.Context, codes ...entity.AirlineCode) ([]entity.Airline, error)
+		DeleteAirline(ctx context.Context, code entity.AirlineCode) error
 	}
 )

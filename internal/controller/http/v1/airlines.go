@@ -7,6 +7,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/metafates/smartway-test/internal/entity"
+	"github.com/metafates/smartway-test/internal/pkg/hashset"
 	"github.com/metafates/smartway-test/internal/usecase"
 	"github.com/metafates/smartway-test/pkg/logger"
 )
@@ -27,6 +28,8 @@ func registerAirlinesRoutes(router *mux.Route, a usecase.Airline, l logger.Inter
 	withCode := accountsRouter.PathPrefix("/{code}").Subrouter()
 
 	withCode.NewRoute().Methods(http.MethodPost).HandlerFunc(r.PostID)
+	withCode.NewRoute().Methods(http.MethodDelete).HandlerFunc(r.DeleteID)
+	withCode.NewRoute().Methods(http.MethodPut).Path("/providers").HandlerFunc(r.PutIDProviders)
 }
 
 func (a *airlinesRoutes) extractCode(r *http.Request) (entity.AirlineCode, error) {
@@ -40,10 +43,6 @@ func (a *airlinesRoutes) extractCode(r *http.Request) (entity.AirlineCode, error
 	return code, nil
 }
 
-type postAirlinesIDRequest struct {
-	Name string `json:"name,omitempty"`
-}
-
 func (a *airlinesRoutes) PostID(w http.ResponseWriter, r *http.Request) {
 	code, err := a.extractCode(r)
 	if err != nil {
@@ -51,7 +50,9 @@ func (a *airlinesRoutes) PostID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var request postAirlinesIDRequest
+	var request struct {
+		Name string `json:"name"`
+	}
 	if err := bindJSON(r, &request); err != nil {
 		writeError(w, err)
 		return
@@ -62,6 +63,46 @@ func (a *airlinesRoutes) PostID(w http.ResponseWriter, r *http.Request) {
 		Name: request.Name,
 	})
 
+	if err != nil {
+		writeError(w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (a *airlinesRoutes) DeleteID(w http.ResponseWriter, r *http.Request) {
+	code, err := a.extractCode(r)
+	if err != nil {
+		writeError(w, err)
+		return
+	}
+
+	if err := a.a.Delete(context.Background(), code); err != nil {
+		writeError(w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (a *airlinesRoutes) PutIDProviders(w http.ResponseWriter, r *http.Request) {
+	code, err := a.extractCode(r)
+	if err != nil {
+		writeError(w, err)
+		return
+	}
+
+	var request struct {
+		Providers *hashset.Set[entity.ProviderID] `json:"providers"`
+	}
+
+	if err := bindJSON(r, &request); err != nil {
+		writeError(w, err)
+		return
+	}
+
+	err = a.a.SetProviders(context.Background(), code, request.Providers.Values())
 	if err != nil {
 		writeError(w, err)
 		return
