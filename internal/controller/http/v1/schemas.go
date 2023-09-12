@@ -2,8 +2,8 @@ package v1
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/metafates/smartway-test/internal/entity"
@@ -24,20 +24,21 @@ func registerSchemasRoutes(router *mux.Router, s usecase.Schema, l logger.Interf
 
 	accountsRouter := router.PathPrefix("/schemas/").Subrouter()
 
-	withID := accountsRouter.PathPrefix("/{id:[1-9][0-9]*}").Subrouter()
+	withID := accountsRouter.PathPrefix("/{id}").Subrouter()
 
 	withID.NewRoute().Methods(http.MethodPost).HandlerFunc(r.PostID)
 	withID.NewRoute().Methods(http.MethodPut).HandlerFunc(r.PutID)
 }
 
-func (s *schemasRoutes) extractID(r *http.Request) int {
+func (s *schemasRoutes) extractID(r *http.Request) (entity.SchemaID, error) {
 	vars := mux.Vars(r)
-	id, err := strconv.ParseInt(vars["id"], 10, 64)
-	if err != nil {
-		s.l.Fatal("unexpected error while parsing id: %w", err)
+
+	var id entity.SchemaID
+	if err := json.Unmarshal([]byte(vars["id"]), &id); err != nil {
+		return 0, err
 	}
 
-	return int(id)
+	return id, nil
 }
 
 type postSchemasIDRequest struct {
@@ -45,7 +46,11 @@ type postSchemasIDRequest struct {
 }
 
 func (s *schemasRoutes) PostID(w http.ResponseWriter, r *http.Request) {
-	id := s.extractID(r)
+	id, err := s.extractID(r)
+	if err != nil {
+		writeError(w, err)
+		return
+	}
 
 	var request postSchemasIDRequest
 	if err := bindJSON(r, &request); err != nil {
@@ -53,7 +58,7 @@ func (s *schemasRoutes) PostID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := s.s.Add(context.Background(), entity.Schema{
+	err = s.s.Add(context.Background(), entity.Schema{
 		Name: request.Name,
 		ID:   id,
 	})
@@ -66,7 +71,11 @@ func (s *schemasRoutes) PostID(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *schemasRoutes) PutID(w http.ResponseWriter, r *http.Request) {
-	id := s.extractID(r)
+	id, err := s.extractID(r)
+	if err != nil {
+		writeError(w, err)
+		return
+	}
 
 	var request entity.Schema
 	if err := bindJSON(r, &request); err != nil {

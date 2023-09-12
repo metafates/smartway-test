@@ -19,7 +19,7 @@ func (p PostgresRepository) StoreAccount(ctx context.Context, account entity.Acc
 	panic("implement me")
 }
 
-func (p PostgresRepository) GetAccountByID(ctx context.Context, ID int) (entity.Account, bool, error) {
+func (p PostgresRepository) GetAccountByID(ctx context.Context, ID entity.AccountID) (entity.Account, bool, error) {
 	//TODO implement me
 	panic("implement me")
 }
@@ -29,7 +29,7 @@ func (p PostgresRepository) GetAccounts(ctx context.Context) ([]entity.Account, 
 	panic("implement me")
 }
 
-func (p PostgresRepository) DeleteAccount(ctx context.Context, ID int) error {
+func (p PostgresRepository) DeleteAccount(ctx context.Context, ID entity.AccountID) error {
 	//TODO implement me
 	panic("implement me")
 }
@@ -39,12 +39,12 @@ func (p PostgresRepository) StoreSchema(ctx context.Context, schema entity.Schem
 	panic("implement me")
 }
 
-func (p PostgresRepository) UpdateSchema(ctx context.Context, ID int, changes entity.Schema) error {
+func (p PostgresRepository) UpdateSchema(ctx context.Context, ID entity.SchemaID, changes entity.Schema) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p PostgresRepository) GetSchemaByID(ctx context.Context, ID int) (entity.Schema, bool, error) {
+func (p PostgresRepository) GetSchemaByID(ctx context.Context, ID entity.SchemaID) (entity.Schema, bool, error) {
 	//TODO implement me
 	panic("implement me")
 }
@@ -54,7 +54,7 @@ func (p PostgresRepository) GetSchemaByName(ctx context.Context, name string) (e
 	panic("implement me")
 }
 
-func (p PostgresRepository) DeleteSchema(ctx context.Context, ID int) error {
+func (p PostgresRepository) DeleteSchema(ctx context.Context, ID entity.SchemaID) error {
 	//TODO implement me
 	panic("implement me")
 }
@@ -64,22 +64,22 @@ func (p PostgresRepository) StoreProvider(ctx context.Context, provider entity.P
 	panic("implement me")
 }
 
-func (p PostgresRepository) UpdateProvider(ctx context.Context, ID int, changes entity.Provider) error {
+func (p PostgresRepository) UpdateProvider(ctx context.Context, ID entity.ProviderID, changes entity.Provider) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p PostgresRepository) GetProviderByID(ctx context.Context, ID int) (entity.Provider, bool, error) {
+func (p PostgresRepository) GetProviderByID(ctx context.Context, ID entity.ProviderID) (entity.Provider, bool, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p PostgresRepository) GetProvidersByIDs(ctx context.Context, IDs ...int) ([]entity.Provider, error) {
+func (p PostgresRepository) GetProvidersByIDs(ctx context.Context, IDs ...entity.ProviderID) ([]entity.Provider, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p PostgresRepository) DeleteProvider(ctx context.Context, ID int) error {
+func (p PostgresRepository) DeleteProvider(ctx context.Context, ID entity.ProviderID) error {
 	//TODO implement me
 	panic("implement me")
 }
@@ -89,12 +89,12 @@ func (p PostgresRepository) StoreAirline(ctx context.Context, airline entity.Air
 	panic("implement me")
 }
 
-func (p PostgresRepository) GetAirlineByCode(ctx context.Context, code string) (entity.Airline, bool, error) {
+func (p PostgresRepository) GetAirlineByCode(ctx context.Context, code entity.AirlineCode) (entity.Airline, bool, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p PostgresRepository) GetAirlinesByCodes(ctx context.Context, codes ...string) ([]entity.Airline, error) {
+func (p PostgresRepository) GetAirlinesByCodes(ctx context.Context, codes ...entity.AirlineCode) ([]entity.Airline, error) {
 	//TODO implement me
 	panic("implement me")
 }

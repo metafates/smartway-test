@@ -2,8 +2,8 @@ package v1
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/metafates/smartway-test/internal/entity"
@@ -24,21 +24,22 @@ func registerProvidersRoutes(router *mux.Router, p usecase.Provider, l logger.In
 
 	providersRouter := router.PathPrefix("/providers/").Subrouter()
 
-	withID := providersRouter.PathPrefix("/{id:[1-9][0-9]*}").Subrouter()
+	withID := providersRouter.PathPrefix("/{id}").Subrouter()
 
 	withID.NewRoute().Methods(http.MethodPost).HandlerFunc(r.PostID)
 	withID.NewRoute().Methods(http.MethodDelete).HandlerFunc(r.DeleteID)
 	withID.NewRoute().Methods(http.MethodGet).Path("/airlines").HandlerFunc(r.GetIDAirlines)
 }
 
-func (p *providersRoutes) extractID(r *http.Request) int {
+func (p *providersRoutes) extractID(r *http.Request) (entity.ProviderID, error) {
 	vars := mux.Vars(r)
-	id, err := strconv.ParseInt(vars["id"], 10, 64)
-	if err != nil {
-		p.l.Fatal("unexpected error while parsing id: %w", err)
+
+	var id entity.ProviderID
+	if err := json.Unmarshal([]byte(vars["id"]), &id); err != nil {
+		return "", err
 	}
 
-	return int(id)
+	return id, nil
 }
 
 type postProvidersIDRequest struct {
@@ -46,7 +47,11 @@ type postProvidersIDRequest struct {
 }
 
 func (p *providersRoutes) PostID(w http.ResponseWriter, r *http.Request) {
-	id := p.extractID(r)
+	id, err := p.extractID(r)
+	if err != nil {
+		writeError(w, err)
+		return
+	}
 
 	var request postProvidersIDRequest
 	if err := bindJSON(r, &request); err != nil {
@@ -54,7 +59,7 @@ func (p *providersRoutes) PostID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := p.p.Add(context.Background(), entity.Provider{
+	err = p.p.Add(context.Background(), entity.Provider{
 		ID:   id,
 		Name: request.Name,
 	})
@@ -67,7 +72,11 @@ func (p *providersRoutes) PostID(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *providersRoutes) DeleteID(w http.ResponseWriter, r *http.Request) {
-	id := p.extractID(r)
+	id, err := p.extractID(r)
+	if err != nil {
+		writeError(w, err)
+		return
+	}
 
 	if err := p.p.Delete(context.Background(), id); err != nil {
 		writeError(w, err)
@@ -78,7 +87,11 @@ func (p *providersRoutes) DeleteID(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *providersRoutes) GetIDAirlines(w http.ResponseWriter, r *http.Request) {
-	id := p.extractID(r)
+	id, err := p.extractID(r)
+	if err != nil {
+		writeError(w, err)
+		return
+	}
 
 	airlines, err := p.p.GetAirlines(context.Background(), id)
 	if err != nil {

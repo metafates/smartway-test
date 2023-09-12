@@ -26,11 +26,11 @@ func (a *AccountUseCase) Add(ctx context.Context, account entity.Account) error 
 	return a.repo.StoreAccount(ctx, account)
 }
 
-func (a *AccountUseCase) Delete(ctx context.Context, ID int) error {
+func (a *AccountUseCase) Delete(ctx context.Context, ID entity.AccountID) error {
 	return a.repo.DeleteAccount(ctx, ID)
 }
 
-func (a *AccountUseCase) SetSchema(ctx context.Context, accountID, schemaID int) error {
+func (a *AccountUseCase) SetSchema(ctx context.Context, accountID entity.AccountID, schemaID entity.SchemaID) error {
 	account, accountExists, err := a.repo.GetAccountByID(ctx, accountID)
 	if err != nil {
 		return err
@@ -49,12 +49,12 @@ func (a *AccountUseCase) SetSchema(ctx context.Context, accountID, schemaID int)
 		return ErrSchemaNotFound
 	}
 
-	account.SchemaID = schemaID
+	account.Schema = schemaID
 
 	return a.repo.StoreAccount(ctx, account)
 }
 
-func (a *AccountUseCase) GetAirlines(ctx context.Context, ID int) ([]entity.Airline, error) {
+func (a *AccountUseCase) GetAirlines(ctx context.Context, ID entity.AccountID) ([]entity.Airline, error) {
 	account, accountExists, err := a.repo.GetAccountByID(ctx, ID)
 	if err != nil {
 		return nil, err
@@ -64,7 +64,7 @@ func (a *AccountUseCase) GetAirlines(ctx context.Context, ID int) ([]entity.Airl
 		return nil, ErrAccountNotFound
 	}
 
-	schema, schemaFound, err := a.repo.GetSchemaByID(ctx, account.SchemaID)
+	schema, schemaFound, err := a.repo.GetSchemaByID(ctx, account.Schema)
 	if err != nil {
 		return nil, err
 	}
@@ -80,9 +80,9 @@ func (a *AccountUseCase) GetAirlines(ctx context.Context, ID int) ([]entity.Airl
 		return nil, err
 	}
 
-	var airlinesCodes map[string]struct{}
+	var airlinesCodes map[entity.AirlineCode]struct{}
 	for _, provider := range providers {
-		for code := range provider.AirlinesCodes {
+		for code := range provider.Airlines {
 			airlinesCodes[code] = struct{}{}
 		}
 	}

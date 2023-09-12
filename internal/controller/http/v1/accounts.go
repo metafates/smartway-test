@@ -2,8 +2,8 @@ package v1
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/metafates/smartway-test/internal/entity"
@@ -24,7 +24,7 @@ func registerAccountsRoutes(router *mux.Router, a usecase.Account, l logger.Inte
 
 	accountsRouter := router.PathPrefix("/accounts/").Subrouter()
 
-	withID := accountsRouter.PathPrefix("/{id:[1-9][0-9]*}").Subrouter()
+	withID := accountsRouter.PathPrefix("/{id}").Subrouter()
 
 	withID.NewRoute().Methods(http.MethodPost).HandlerFunc(r.PostID)
 	withID.NewRoute().Methods(http.MethodDelete).HandlerFunc(r.DeleteID)
@@ -32,20 +32,25 @@ func registerAccountsRoutes(router *mux.Router, a usecase.Account, l logger.Inte
 	withID.NewRoute().Methods(http.MethodPut).Path("/schema").HandlerFunc(r.PutIDSchema)
 }
 
-func (a *accountsRoutes) extractID(r *http.Request) int {
+func (a *accountsRoutes) extractID(r *http.Request) (entity.AccountID, error) {
 	vars := mux.Vars(r)
-	id, err := strconv.ParseInt(vars["id"], 10, 64)
-	if err != nil {
-		a.l.Fatal("unexpected error while parsing id: %w", err)
+
+	var id entity.AccountID
+	if err := json.Unmarshal([]byte(vars["id"]), &id); err != nil {
+		return 0, err
 	}
 
-	return int(id)
+	return id, nil
 }
 
 func (a *accountsRoutes) PostID(w http.ResponseWriter, r *http.Request) {
-	id := a.extractID(r)
+	id, err := a.extractID(r)
+	if err != nil {
+		writeError(w, err)
+		return
+	}
 
-	err := a.a.Add(context.Background(), entity.Account{
+	err = a.a.Add(context.Background(), entity.Account{
 		ID: id,
 	})
 
@@ -58,9 +63,13 @@ func (a *accountsRoutes) PostID(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *accountsRoutes) DeleteID(w http.ResponseWriter, r *http.Request) {
-	id := a.extractID(r)
+	id, err := a.extractID(r)
+	if err != nil {
+		writeError(w, err)
+		return
+	}
 
-	err := a.a.Delete(context.Background(), id)
+	err = a.a.Delete(context.Background(), id)
 	if err != nil {
 		writeError(w, err)
 		return
@@ -70,7 +79,11 @@ func (a *accountsRoutes) DeleteID(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *accountsRoutes) GetIDAirlines(w http.ResponseWriter, r *http.Request) {
-	id := a.extractID(r)
+	id, err := a.extractID(r)
+	if err != nil {
+		writeError(w, err)
+		return
+	}
 
 	airlines, err := a.a.GetAirlines(context.Background(), id)
 	if err != nil {
@@ -82,14 +95,18 @@ func (a *accountsRoutes) GetIDAirlines(w http.ResponseWriter, r *http.Request) {
 }
 
 type setSchemaRequest struct {
-	ID int `json:"id"`
+	ID entity.SchemaID `json:"id"`
 }
 
 func (a *accountsRoutes) PutIDSchema(w http.ResponseWriter, r *http.Request) {
-	id := a.extractID(r)
+	id, err := a.extractID(r)
+	if err != nil {
+		writeError(w, err)
+		return
+	}
 
 	var request setSchemaRequest
-	err := bindJSON(r, &request)
+	err = bindJSON(r, &request)
 	if err != nil {
 		writeError(w, err)
 		return

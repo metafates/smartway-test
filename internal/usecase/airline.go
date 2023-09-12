@@ -26,7 +26,7 @@ func (a *AirlineUseCase) Add(ctx context.Context, airline entity.Airline) error 
 	return a.repo.StoreAirline(ctx, airline)
 }
 
-func (a *AirlineUseCase) SetProviders(ctx context.Context, airlineCode string, providersIDs []int) error {
+func (a *AirlineUseCase) SetProviders(ctx context.Context, airlineCode entity.AirlineCode, providersIDs []entity.ProviderID) error {
 	airline, airlineFound, err := a.repo.GetAirlineByCode(ctx, airlineCode)
 	if err != nil {
 		return err
@@ -45,13 +45,13 @@ func (a *AirlineUseCase) SetProviders(ctx context.Context, airlineCode string, p
 	//
 	// maybe this?
 	// https://www.conf42.com/Golang_2023_Ilia_Sergunin_transaction_management_repository_pattern
-	maps.Clear(airline.ProvidersIDs)
+	maps.Clear(airline.Providers)
 	for _, provider := range providers {
-		airline.ProvidersIDs[provider.ID] = struct{}{}
-		provider.AirlinesCodes[airline.Code] = struct{}{}
+		airline.Providers[provider.ID] = struct{}{}
+		provider.Airlines[airline.Code] = struct{}{}
 
 		err := a.repo.UpdateProvider(ctx, provider.ID, entity.Provider{
-			AirlinesCodes: provider.AirlinesCodes,
+			Airlines: provider.Airlines,
 		})
 
 		if err != nil {
