@@ -264,12 +264,17 @@ func (m *MockRepository) UpdateAirline(ctx context.Context, code entity.AirlineC
 
 		// add this airline to new providers
 		for _, providerID := range changes.Providers.Values() {
-			provider := m.providers[providerID]
+			provider, ok := m.providers[providerID]
+			if !ok {
+				return errors.New("provider does not exist")
+			}
+
 			provider.Airlines.Put(code)
 			m.providers[providerID] = provider
 		}
 
 		airline.Providers = changes.Providers
+		m.airlines[code] = airline
 	}
 
 	return nil
