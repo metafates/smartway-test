@@ -26,11 +26,11 @@ func (a *AccountUseCase) Add(ctx context.Context, account entity.Account) error 
 	return a.repo.StoreAccount(ctx, account)
 }
 
-func (a *AccountUseCase) Delete(ctx context.Context, ID string) error {
+func (a *AccountUseCase) Delete(ctx context.Context, ID int) error {
 	return a.repo.DeleteAccount(ctx, ID)
 }
 
-func (a *AccountUseCase) SetSchema(ctx context.Context, accountID, schemaID string) error {
+func (a *AccountUseCase) SetSchema(ctx context.Context, accountID, schemaID int) error {
 	account, accountExists, err := a.repo.GetAccountByID(ctx, accountID)
 	if err != nil {
 		return err
@@ -54,7 +54,7 @@ func (a *AccountUseCase) SetSchema(ctx context.Context, accountID, schemaID stri
 	return a.repo.StoreAccount(ctx, account)
 }
 
-func (a *AccountUseCase) GetAirlines(ctx context.Context, ID string) ([]entity.Airline, error) {
+func (a *AccountUseCase) GetAirlines(ctx context.Context, ID int) ([]entity.Airline, error) {
 	account, accountExists, err := a.repo.GetAccountByID(ctx, ID)
 	if err != nil {
 		return nil, err

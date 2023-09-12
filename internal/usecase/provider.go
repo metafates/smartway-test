@@ -26,11 +26,11 @@ func (p ProviderUseCase) Add(ctx context.Context, provider entity.Provider) erro
 	return p.repo.StoreProvider(ctx, provider)
 }
 
-func (p ProviderUseCase) Delete(ctx context.Context, ID string) error {
+func (p ProviderUseCase) Delete(ctx context.Context, ID int) error {
 	return p.Delete(ctx, ID)
 }
 
-func (p ProviderUseCase) GetAirlines(ctx context.Context, ID string) ([]entity.Airline, error) {
+func (p ProviderUseCase) GetAirlines(ctx context.Context, ID int) ([]entity.Airline, error) {
 	provider, providerFound, err := p.repo.GetProviderByID(ctx, ID)
 	if err != nil {
 		return nil, err

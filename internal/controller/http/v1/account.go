@@ -3,6 +3,7 @@ package v1
 import (
 	"context"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/metafates/smartway-test/internal/entity"
@@ -28,9 +29,18 @@ func registerAccountRoutes(router *mux.Router, a usecase.Account, l logger.Inter
 	accountRouter.NewRoute().Methods(http.MethodPut).Path("/schema").HandlerFunc(r.setSchema)
 }
 
-func (a *accountRoutes) add(w http.ResponseWriter, r *http.Request) {
+func (a *accountRoutes) getID(r *http.Request) int {
 	vars := mux.Vars(r)
-	id := vars["id"]
+	id, err := strconv.ParseInt(vars["id"], 10, 64)
+	if err != nil {
+		a.l.Fatal("unexpected error while parsing id: %w", err)
+	}
+
+	return int(id)
+}
+
+func (a *accountRoutes) add(w http.ResponseWriter, r *http.Request) {
+	id := a.getID(r)
 
 	err := a.a.Add(context.Background(), entity.Account{
 		ID: id,
@@ -45,8 +55,7 @@ func (a *accountRoutes) add(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *accountRoutes) delete(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id := vars["id"]
+	id := a.getID(r)
 
 	err := a.a.Delete(context.Background(), id)
 	if err != nil {
@@ -58,8 +67,7 @@ func (a *accountRoutes) delete(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *accountRoutes) getAirlines(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id := vars["id"]
+	id := a.getID(r)
 
 	airlines, err := a.a.GetAirlines(context.Background(), id)
 	if err != nil {
@@ -71,12 +79,11 @@ func (a *accountRoutes) getAirlines(w http.ResponseWriter, r *http.Request) {
 }
 
 type setSchemaRequest struct {
-	ID string `json:"id"`
+	ID int `json:"id"`
 }
 
 func (a *accountRoutes) setSchema(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id := vars["id"]
+	id := a.getID(r)
 
 	var request setSchemaRequest
 	err := bindJSON(r, &request)

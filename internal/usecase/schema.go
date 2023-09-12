@@ -26,7 +26,7 @@ func (s *SchemaUseCase) Add(ctx context.Context, schema entity.Schema) error {
 	return s.repo.StoreSchema(ctx, schema)
 }
 
-func (s *SchemaUseCase) Delete(ctx context.Context, ID string) error {
+func (s *SchemaUseCase) Delete(ctx context.Context, ID int) error {
 	accounts, err := s.repo.GetAccounts(ctx)
 	if err != nil {
 		return err
@@ -41,7 +41,7 @@ func (s *SchemaUseCase) Delete(ctx context.Context, ID string) error {
 	return s.repo.DeleteSchema(ctx, ID)
 }
 
-func (s *SchemaUseCase) Update(ctx context.Context, ID string, changes entity.Schema) error {
+func (s *SchemaUseCase) Update(ctx context.Context, ID int, changes entity.Schema) error {
 	return s.repo.UpdateSchema(ctx, ID, changes)
 }
 

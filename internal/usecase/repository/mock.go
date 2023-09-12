@@ -12,17 +12,17 @@ import (
 var _ usecase.Repository = (*MockRepository)(nil)
 
 type MockRepository struct {
-	accounts  map[string]entity.Account
-	schemas   map[string]entity.Schema
-	providers map[string]entity.Provider
+	accounts  map[int]entity.Account
+	schemas   map[int]entity.Schema
+	providers map[int]entity.Provider
 	airlines  map[string]entity.Airline
 }
 
 func NewMockRepository() *MockRepository {
 	return &MockRepository{
-		accounts:  make(map[string]entity.Account),
-		schemas:   make(map[string]entity.Schema),
-		providers: make(map[string]entity.Provider),
+		accounts:  make(map[int]entity.Account),
+		schemas:   make(map[int]entity.Schema),
+		providers: make(map[int]entity.Provider),
 		airlines:  make(map[string]entity.Airline),
 	}
 }
@@ -36,7 +36,7 @@ func (m *MockRepository) StoreAccount(ctx context.Context, account entity.Accoun
 	return nil
 }
 
-func (m *MockRepository) GetAccountByID(ctx context.Context, ID string) (entity.Account, bool, error) {
+func (m *MockRepository) GetAccountByID(ctx context.Context, ID int) (entity.Account, bool, error) {
 	account, ok := m.accounts[ID]
 	return account, ok, nil
 }
@@ -45,7 +45,7 @@ func (m *MockRepository) GetAccounts(ctx context.Context) ([]entity.Account, err
 	return lo.Values(m.accounts), nil
 }
 
-func (m *MockRepository) DeleteAccount(ctx context.Context, ID string) error {
+func (m *MockRepository) DeleteAccount(ctx context.Context, ID int) error {
 	delete(m.accounts, ID)
 	return nil
 }
@@ -55,7 +55,7 @@ func (m *MockRepository) StoreSchema(ctx context.Context, schema entity.Schema) 
 	return nil
 }
 
-func (m *MockRepository) UpdateSchema(ctx context.Context, ID string, changes entity.Schema) error {
+func (m *MockRepository) UpdateSchema(ctx context.Context, ID int, changes entity.Schema) error {
 	schema, ok := m.schemas[ID]
 	if !ok {
 		return errors.New("schema not found")
@@ -65,7 +65,7 @@ func (m *MockRepository) UpdateSchema(ctx context.Context, ID string, changes en
 		schema.Name = changes.Name
 	}
 
-	if changes.ID != "" {
+	if changes.ID != 0 {
 		schema.ID = changes.ID
 	}
 
@@ -77,7 +77,7 @@ func (m *MockRepository) UpdateSchema(ctx context.Context, ID string, changes en
 	return nil
 }
 
-func (m *MockRepository) GetSchemaByID(ctx context.Context, ID string) (entity.Schema, bool, error) {
+func (m *MockRepository) GetSchemaByID(ctx context.Context, ID int) (entity.Schema, bool, error) {
 	schema, ok := m.schemas[ID]
 	return schema, ok, nil
 }
@@ -90,7 +90,7 @@ func (m *MockRepository) GetSchemaByName(ctx context.Context, name string) (enti
 	return schema, ok, nil
 }
 
-func (m *MockRepository) DeleteSchema(ctx context.Context, ID string) error {
+func (m *MockRepository) DeleteSchema(ctx context.Context, ID int) error {
 	delete(m.schemas, ID)
 	return nil
 }
@@ -100,7 +100,7 @@ func (m *MockRepository) StoreProvider(ctx context.Context, provider entity.Prov
 	return nil
 }
 
-func (m *MockRepository) UpdateProvider(ctx context.Context, ID string, changes entity.Provider) error {
+func (m *MockRepository) UpdateProvider(ctx context.Context, ID int, changes entity.Provider) error {
 	provider, ok := m.providers[ID]
 	if !ok {
 		return errors.New("provider not found")
@@ -110,7 +110,7 @@ func (m *MockRepository) UpdateProvider(ctx context.Context, ID string, changes 
 		provider.Name = changes.Name
 	}
 
-	if changes.ID != "" {
+	if changes.ID != 0 {
 		provider.ID = changes.ID
 	}
 
@@ -122,12 +122,12 @@ func (m *MockRepository) UpdateProvider(ctx context.Context, ID string, changes 
 	return nil
 }
 
-func (m *MockRepository) GetProviderByID(ctx context.Context, ID string) (entity.Provider, bool, error) {
+func (m *MockRepository) GetProviderByID(ctx context.Context, ID int) (entity.Provider, bool, error) {
 	provider, ok := m.providers[ID]
 	return provider, ok, nil
 }
 
-func (m *MockRepository) GetProvidersByIDs(ctx context.Context, IDs ...string) ([]entity.Provider, error) {
+func (m *MockRepository) GetProvidersByIDs(ctx context.Context, IDs ...int) ([]entity.Provider, error) {
 	providers := make([]entity.Provider, len(IDs))
 
 	for i, ID := range IDs {
@@ -142,7 +142,7 @@ func (m *MockRepository) GetProvidersByIDs(ctx context.Context, IDs ...string) (
 	return providers, nil
 }
 
-func (m *MockRepository) DeleteProvider(ctx context.Context, ID string) error {
+func (m *MockRepository) DeleteProvider(ctx context.Context, ID int) error {
 	delete(m.providers, ID)
 	return nil
 }

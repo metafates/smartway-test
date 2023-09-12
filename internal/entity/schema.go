@@ -5,8 +5,8 @@ type Schema struct {
 	Name string `json:"name,omitempty"`
 
 	// ID of the schema
-	ID string `json:"id"`
+	ID int `json:"id"`
 
 	// ProvidersIDs that this schema shows
-	ProvidersIDs map[string]struct{} `json:"-"`
+	ProvidersIDs map[int]struct{} `json:"-"`
 }

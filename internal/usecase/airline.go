@@ -26,8 +26,8 @@ func (a *AirlineUseCase) Add(ctx context.Context, airline entity.Airline) error 
 	return a.repo.StoreAirline(ctx, airline)
 }
 
-func (a *AirlineUseCase) SetProviders(ctx context.Context, airlineID string, providersIDs []string) error {
-	airline, airlineFound, err := a.repo.GetAirlineByCode(ctx, airlineID)
+func (a *AirlineUseCase) SetProviders(ctx context.Context, airlineCode string, providersIDs []int) error {
+	airline, airlineFound, err := a.repo.GetAirlineByCode(ctx, airlineCode)
 	if err != nil {
 		return err
 	}

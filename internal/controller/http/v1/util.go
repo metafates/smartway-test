@@ -29,5 +29,6 @@ func bindJSON(r *http.Request, dst any) error {
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
 
+	// TODO: better error messages for the end user
 	return decoder.Decode(&dst)
 }
