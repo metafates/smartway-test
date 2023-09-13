@@ -32,7 +32,7 @@ func (s *SchemaID) Scan(src any) error {
 		return err
 	}
 
-	value, ok := iv.(int)
+	value, ok := iv.(int64)
 	if !ok {
 		return errors.New("failed to scan schema id")
 	}
@@ -70,9 +70,6 @@ type Schema struct {
 
 	// ID of the schema
 	ID SchemaID `json:"id"`
-
-	// Providers that this schema shows
-	Providers *hashset.Set[ProviderID] `json:"providers"`
 }
 
 // SchemaChanges that can be applied

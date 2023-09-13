@@ -66,9 +66,6 @@ func (a *AirlineCode) UnmarshalJSON(data []byte) error {
 type Airline struct {
 	Code AirlineCode `json:"code,omitempty"`
 	Name string      `json:"name,omitempty"`
-
-	// Providers that provide this airline
-	Providers *hashset.Set[ProviderID] `json:"-"`
 }
 
 // AirlineChanges that can be applied

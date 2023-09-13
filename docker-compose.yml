@@ -10,6 +10,6 @@ services:
       db:
         condition: service_healthy
     environment:
-      PG_URL: postgresql://postgres:postgres@db/db
+      SERVER_POSTGRES_URL: postgresql://postgres:postgres@db/db
     build:
       context: .

@@ -30,7 +30,7 @@ func (a *AccountID) Scan(src any) error {
 		return err
 	}
 
-	value, ok := iv.(int)
+	value, ok := iv.(int64)
 	if !ok {
 		return errors.New("failed to scan account id")
 	}
@@ -65,9 +65,6 @@ func (a *AccountID) UnmarshalJSON(data []byte) error {
 type Account struct {
 	// ID of the account
 	ID AccountID `json:"id,omitempty"`
-
-	// Schema is a Schema that this account is assigned to
-	Schema SchemaID `json:"schemaId"`
 }
 
 // AccountChanges that can be applied

@@ -8,6 +8,7 @@ import (
 	"github.com/metafates/smartway-test/internal/entity"
 	"github.com/metafates/smartway-test/internal/usecase"
 	"github.com/metafates/smartway-test/pkg/logger"
+	"github.com/samber/lo"
 )
 
 type schemasRoutes struct {
@@ -124,5 +125,21 @@ func (s *schemasRoutes) GetSearch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSON(w, schema, http.StatusOK)
+	providers, err := s.s.GetProviders(context.Background(), schema.ID)
+	if err != nil {
+		writeError(w, err)
+		return
+	}
+
+	response := struct {
+		entity.Schema
+		Providers []entity.ProviderID `json:"providers,omitempty"`
+	}{
+		Schema: schema,
+		Providers: lo.Map(providers, func(p entity.Provider, _ int) entity.ProviderID {
+			return p.ID
+		}),
+	}
+
+	writeJSON(w, response, http.StatusOK)
 }

@@ -26,6 +26,7 @@ type (
 		Delete(ctx context.Context, ID entity.SchemaID) error
 		Update(ctx context.Context, ID entity.SchemaID, changes entity.SchemaChanges) error
 		Find(ctx context.Context, name string) (entity.Schema, bool, error)
+		GetProviders(ctx context.Context, ID entity.SchemaID) ([]entity.Provider, error)
 	}
 
 	Provider interface {
@@ -42,27 +43,24 @@ type (
 
 	Repository interface {
 		StoreAccount(ctx context.Context, account entity.Account) error
-		GetAccountByID(ctx context.Context, ID entity.AccountID) (entity.Account, bool, error)
-		GetAccounts(ctx context.Context) ([]entity.Account, error)
-		UpdateAccount(ctx context.Context, ID entity.AccountID, changes entity.AccountChanges) error
 		DeleteAccount(ctx context.Context, ID entity.AccountID) error
+		UpdateAccount(ctx context.Context, ID entity.AccountID, changes entity.AccountChanges) error
+		GetAccountByID(ctx context.Context, ID entity.AccountID) (entity.Account, bool, error)
+		GetAccountSchema(ctx context.Context, ID entity.AccountID) (entity.Schema, bool, error)
 
 		StoreSchema(ctx context.Context, schema entity.Schema) error
-		UpdateSchema(ctx context.Context, ID entity.SchemaID, changes entity.SchemaChanges) error
-		GetSchemaByID(ctx context.Context, ID entity.SchemaID) (entity.Schema, bool, error)
-		GetSchemaByName(ctx context.Context, name string) (entity.Schema, bool, error)
 		DeleteSchema(ctx context.Context, ID entity.SchemaID) error
+		UpdateSchema(ctx context.Context, ID entity.SchemaID, changes entity.SchemaChanges) error
+		GetSchemaAccounts(ctx context.Context, ID entity.SchemaID) ([]entity.Account, error)
+		GetSchemaProviders(ctx context.Context, ID entity.SchemaID) ([]entity.Provider, error)
+		GetSchemaByName(ctx context.Context, name string) (entity.Schema, bool, error)
 
 		StoreProvider(ctx context.Context, provider entity.Provider) error
-		UpdateProvider(ctx context.Context, ID entity.ProviderID, changes entity.ProviderChanges) error
-		GetProviderByID(ctx context.Context, ID entity.ProviderID) (entity.Provider, bool, error)
-		GetProvidersByIDs(ctx context.Context, IDs ...entity.ProviderID) ([]entity.Provider, error)
 		DeleteProvider(ctx context.Context, ID entity.ProviderID) error
+		GetProviderAirlines(ctx context.Context, ID entity.ProviderID) ([]entity.Airline, error)
 
 		StoreAirline(ctx context.Context, airline entity.Airline) error
-		UpdateAirline(ctx context.Context, code entity.AirlineCode, changes entity.AirlineChanges) error
-		GetAirlineByCode(ctx context.Context, code entity.AirlineCode) (entity.Airline, bool, error)
-		GetAirlinesByCodes(ctx context.Context, codes ...entity.AirlineCode) ([]entity.Airline, error)
 		DeleteAirline(ctx context.Context, code entity.AirlineCode) error
+		UpdateAirline(ctx context.Context, code entity.AirlineCode, changes entity.AirlineChanges) error
 	}
 )
