@@ -65,9 +65,6 @@ func (a *AccountID) UnmarshalJSON(data []byte) error {
 type Account struct {
 	// ID of the account
 	ID AccountID `json:"id,omitempty"`
-
-	// Schema is a Schema that this account is assigned to
-	Schema SchemaID `json:"schemaId"`
 }
 
 // AccountChanges that can be applied

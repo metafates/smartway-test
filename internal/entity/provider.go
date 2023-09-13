@@ -6,8 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"regexp"
-
-	"github.com/metafates/smartway-test/internal/pkg/hashset"
 )
 
 var (
@@ -67,9 +65,6 @@ func (p *ProviderID) UnmarshalJSON(data []byte) error {
 type Provider struct {
 	ID   ProviderID `json:"id,omitempty"`
 	Name string     `json:"name,omitempty"`
-
-	// Airlines that this provider provides
-	Airlines *hashset.Set[AirlineCode] `json:"-"`
 }
 
 // ProviderChanges that can be applied

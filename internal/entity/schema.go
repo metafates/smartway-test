@@ -70,9 +70,6 @@ type Schema struct {
 
 	// ID of the schema
 	ID SchemaID `json:"id"`
-
-	// Providers that this schema shows
-	Providers *hashset.Set[ProviderID] `json:"providers"`
 }
 
 // SchemaChanges that can be applied
