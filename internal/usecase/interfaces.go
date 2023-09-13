@@ -26,6 +26,7 @@ type (
 		Delete(ctx context.Context, ID entity.SchemaID) error
 		Update(ctx context.Context, ID entity.SchemaID, changes entity.SchemaChanges) error
 		Find(ctx context.Context, name string) (entity.Schema, bool, error)
+		GetProviders(ctx context.Context, ID entity.SchemaID) ([]entity.Provider, error)
 	}
 
 	Provider interface {

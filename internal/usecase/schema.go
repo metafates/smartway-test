@@ -56,3 +56,7 @@ func (s *SchemaUseCase) Update(ctx context.Context, ID entity.SchemaID, changes 
 func (s *SchemaUseCase) Find(ctx context.Context, name string) (entity.Schema, bool, error) {
 	return s.repo.GetSchemaByName(ctx, name)
 }
+
+func (s *SchemaUseCase) GetProviders(ctx context.Context, ID entity.SchemaID) ([]entity.Provider, error) {
+	return s.repo.GetSchemaProviders(ctx, ID)
+}
