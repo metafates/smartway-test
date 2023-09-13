@@ -15,6 +15,7 @@ var (
 	_ driver.Valuer = (*SchemaID)(nil)
 )
 
+// SchemaID must be greater than zero
 type SchemaID int
 
 func (s *SchemaID) Value() (driver.Value, error) {
@@ -64,12 +65,13 @@ func (s *SchemaID) UnmarshalJSON(data []byte) error {
 	return s.UnmarshalText([]byte(strconv.Itoa(number)))
 }
 
+// Schema is a providers search schema
 type Schema struct {
 	// Name unique name of the schema
-	Name string `json:"name"`
+	Name string `json:"name" validate:"required"`
 
 	// ID of the schema
-	ID SchemaID `json:"id"`
+	ID SchemaID `json:"id" validate:"required"`
 }
 
 // SchemaChanges that can be applied

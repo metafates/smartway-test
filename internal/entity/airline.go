@@ -17,6 +17,9 @@ var (
 
 var airlineCodePattern = regexp.MustCompile(`^[0-9A-Z\x{0400}-\x{04FF}]{2}$`)
 
+// AirlineCode is an IATA code
+//
+// See: https://en.wikipedia.org/wiki/IATA_airport_code
 type AirlineCode string
 
 func (a *AirlineCode) Value() (driver.Value, error) {
@@ -64,8 +67,11 @@ func (a *AirlineCode) UnmarshalJSON(data []byte) error {
 }
 
 type Airline struct {
-	Code AirlineCode `json:"code,omitempty"`
-	Name string      `json:"name,omitempty"`
+	// Code of the airline
+	Code AirlineCode `json:"code" validate:"required"`
+
+	// Name of the airline
+	Name string `json:"name" validate:"required"`
 }
 
 // AirlineChanges that can be applied

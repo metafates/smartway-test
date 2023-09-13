@@ -13,6 +13,7 @@ var (
 	_ driver.Valuer = (*AccountID)(nil)
 )
 
+// AccountID must be greater than zero
 type AccountID int
 
 func (a *AccountID) Value() (driver.Value, error) {
@@ -64,7 +65,7 @@ func (a *AccountID) UnmarshalJSON(data []byte) error {
 
 type Account struct {
 	// ID of the account
-	ID AccountID `json:"id,omitempty"`
+	ID AccountID `json:"id" validate:"required"`
 }
 
 // AccountChanges that can be applied

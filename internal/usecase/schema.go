@@ -4,33 +4,31 @@ import (
 	"context"
 	"errors"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/metafates/smartway-test/internal/entity"
 )
 
 var (
 	ErrUsedSchemaDeletion = errors.New("schema that is being used can not be deleted")
-	ErrSchemaNotFound     = errors.New("schema not found")
-	ErrSchemaNameMissing  = errors.New("schema name is missing")
-	ErrInvalidSchemaID    = errors.New("invalid schema id")
 )
 
 var _ Schema = (*SchemaUseCase)(nil)
 
 type SchemaUseCase struct {
-	repo Repository
+	repo     Repository
+	validate *validator.Validate
 }
 
 func NewSchemaUseCase(repository Repository) *SchemaUseCase {
-	return &SchemaUseCase{repo: repository}
+	return &SchemaUseCase{
+		repo:     repository,
+		validate: validator.New(validator.WithRequiredStructEnabled()),
+	}
 }
 
 func (s *SchemaUseCase) Add(ctx context.Context, schema entity.Schema) error {
-	if schema.Name == "" {
-		return ErrSchemaNameMissing
-	}
-
-	if schema.ID <= 0 {
-		return ErrInvalidSchemaID
+	if err := s.validate.Struct(schema); err != nil {
+		return err
 	}
 
 	return s.repo.StoreSchema(ctx, schema)

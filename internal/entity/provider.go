@@ -13,6 +13,7 @@ var (
 	_ driver.Valuer = (*ProviderID)(nil)
 )
 
+// ProviderID is a two [A-Z] symbols
 type ProviderID string
 
 func (p *ProviderID) Value() (driver.Value, error) {
@@ -62,9 +63,13 @@ func (p *ProviderID) UnmarshalJSON(data []byte) error {
 	return p.UnmarshalText([]byte(s))
 }
 
+// Provider that provides airlines
 type Provider struct {
-	ID   ProviderID `json:"id,omitempty"`
-	Name string     `json:"name,omitempty"`
+	// ID of the provider
+	ID ProviderID `json:"id" validate:"required"`
+
+	// Name of the provider
+	Name string `json:"name" validate:"required"`
 }
 
 // ProviderChanges that can be applied

@@ -75,7 +75,7 @@ func New() (*Config, error) {
 		return nil, err
 	}
 
-	validate := validator.New()
+	validate := validator.New(validator.WithRequiredStructEnabled())
 	if err := validate.Struct(config); err != nil {
 		return nil, err
 	}

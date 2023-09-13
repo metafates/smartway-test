@@ -4,25 +4,30 @@ import (
 	"context"
 	"errors"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/metafates/smartway-test/internal/entity"
 	"github.com/metafates/smartway-test/internal/pkg/hashset"
-)
-
-var (
-	ErrAccountNotFound = errors.New("account not found")
 )
 
 var _ Account = (*AccountUseCase)(nil)
 
 type AccountUseCase struct {
-	repo Repository
+	repo     Repository
+	validate *validator.Validate
 }
 
 func NewAccountUseCase(repository Repository) *AccountUseCase {
-	return &AccountUseCase{repo: repository}
+	return &AccountUseCase{
+		repo:     repository,
+		validate: validator.New(validator.WithRequiredStructEnabled()),
+	}
 }
 
 func (a *AccountUseCase) Add(ctx context.Context, account entity.Account) error {
+	if err := a.validate.Struct(account); err != nil {
+		return err
+	}
+
 	return a.repo.StoreAccount(ctx, account)
 }
 
