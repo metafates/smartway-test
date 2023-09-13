@@ -63,6 +63,9 @@ To start the server run
 
 ```shell
 mage full
+
+# to show all available mage targets run
+mage -l
 ```
 
 This will spin up...
