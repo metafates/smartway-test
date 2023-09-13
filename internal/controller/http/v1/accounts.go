@@ -22,13 +22,15 @@ func registerAccountsRoutes(router *mux.Router, a usecase.Account, l logger.Inte
 	}
 
 	accountsRouter := router.PathPrefix("/accounts/").Subrouter()
-
-	withID := accountsRouter.PathPrefix("/{id}").Subrouter()
-
-	withID.NewRoute().Methods(http.MethodPost).HandlerFunc(r.PostID)
-	withID.NewRoute().Methods(http.MethodDelete).HandlerFunc(r.DeleteID)
-	withID.NewRoute().Methods(http.MethodGet).Path("/airlines").HandlerFunc(r.GetIDAirlines)
-	withID.NewRoute().Methods(http.MethodPut).Path("/schema").HandlerFunc(r.PutIDSchema)
+	{
+		withID := accountsRouter.PathPrefix("/{id}").Subrouter()
+		{
+			withID.NewRoute().Methods(http.MethodPost).HandlerFunc(r.PostID)
+			withID.NewRoute().Methods(http.MethodDelete).HandlerFunc(r.DeleteID)
+			withID.NewRoute().Methods(http.MethodGet).Path("/airlines").HandlerFunc(r.GetIDAirlines)
+			withID.NewRoute().Methods(http.MethodPut).Path("/schema").HandlerFunc(r.PutIDSchema)
+		}
+	}
 }
 
 func (a *accountsRoutes) extractID(r *http.Request) (entity.AccountID, error) {

@@ -22,12 +22,14 @@ func registerProvidersRoutes(router *mux.Router, p usecase.Provider, l logger.In
 	}
 
 	providersRouter := router.PathPrefix("/providers/").Subrouter()
-
-	withID := providersRouter.PathPrefix("/{id}").Subrouter()
-
-	withID.NewRoute().Methods(http.MethodPost).HandlerFunc(r.PostID)
-	withID.NewRoute().Methods(http.MethodDelete).HandlerFunc(r.DeleteID)
-	withID.NewRoute().Methods(http.MethodGet).Path("/airlines").HandlerFunc(r.GetIDAirlines)
+	{
+		withID := providersRouter.PathPrefix("/{id}").Subrouter()
+		{
+			withID.NewRoute().Methods(http.MethodPost).HandlerFunc(r.PostID)
+			withID.NewRoute().Methods(http.MethodDelete).HandlerFunc(r.DeleteID)
+			withID.NewRoute().Methods(http.MethodGet).Path("/airlines").HandlerFunc(r.GetIDAirlines)
+		}
+	}
 }
 
 func (p *providersRoutes) extractID(r *http.Request) (entity.ProviderID, error) {

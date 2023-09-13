@@ -23,14 +23,16 @@ func registerSchemasRoutes(router *mux.Router, s usecase.Schema, l logger.Interf
 	}
 
 	schemasRouter := router.PathPrefix("/schemas/").Subrouter()
+	{
+		schemasRouter.NewRoute().Methods(http.MethodGet).Path("/find").Queries("name", "{name}").HandlerFunc(r.GetSearch)
 
-	schemasRouter.NewRoute().Methods(http.MethodGet).Path("/find").Queries("name", "{name}").HandlerFunc(r.GetSearch)
-
-	withID := schemasRouter.PathPrefix("/{id}").Subrouter()
-
-	withID.NewRoute().Methods(http.MethodPost).HandlerFunc(r.PostID)
-	withID.NewRoute().Methods(http.MethodDelete).HandlerFunc(r.DeleteID)
-	withID.NewRoute().Methods(http.MethodPut).HandlerFunc(r.PutID)
+		withID := schemasRouter.PathPrefix("/{id}").Subrouter()
+		{
+			withID.NewRoute().Methods(http.MethodPost).HandlerFunc(r.PostID)
+			withID.NewRoute().Methods(http.MethodDelete).HandlerFunc(r.DeleteID)
+			withID.NewRoute().Methods(http.MethodPut).HandlerFunc(r.PutID)
+		}
+	}
 }
 
 func (s *schemasRoutes) extractID(r *http.Request) (entity.SchemaID, error) {

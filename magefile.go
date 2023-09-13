@@ -57,17 +57,13 @@ type Docker mg.Namespace
 
 // Rebuilds the Dockerfile
 func (Docker) Rebuild() error {
+	return rebuildDockerfile()
+}
+
+func rebuildDockerfile() error {
 	compose := cmd("docker", "compose")
 
-	if err := compose("up", "-d", "--no-deps", "--build", "server"); err != nil {
-		return err
-	}
-
-	if err := compose("down"); err != nil {
-		return err
-	}
-
-	return nil
+	return compose("up", "-d", "--no-deps", "--build", "server")
 }
 
 // Spin up docker containers, apply migrations and load example data
@@ -75,6 +71,8 @@ func Full(ctx context.Context) error {
 	if err := cmd("docker", "compose", "down")(); err != nil {
 		return err
 	}
+
+	rebuildDockerfile()
 
 	var group *errgroup.Group
 	group, ctx = errgroup.WithContext(ctx)
@@ -84,8 +82,7 @@ func Full(ctx context.Context) error {
 	})
 
 	group.Go(func() error {
-		time.Sleep(5 * time.Second)
-		fmt.Println("Loading migrations with example data")
+		time.Sleep(3 * time.Second)
 
 		fmt.Println("Applying migrations")
 		if err := migrate("up"); err != nil {

@@ -23,12 +23,14 @@ func registerAirlinesRoutes(router *mux.Router, a usecase.Airline, l logger.Inte
 	}
 
 	airlinesRouter := router.PathPrefix("/airlines/").Subrouter()
-
-	withCode := airlinesRouter.PathPrefix("/{code}").Subrouter()
-
-	withCode.NewRoute().Methods(http.MethodPost).HandlerFunc(r.PostID)
-	withCode.NewRoute().Methods(http.MethodDelete).HandlerFunc(r.DeleteID)
-	withCode.NewRoute().Methods(http.MethodPut).Path("/providers").HandlerFunc(r.PutIDProviders)
+	{
+		withCode := airlinesRouter.PathPrefix("/{code}").Subrouter()
+		{
+			withCode.NewRoute().Methods(http.MethodPost).HandlerFunc(r.PostID)
+			withCode.NewRoute().Methods(http.MethodDelete).HandlerFunc(r.DeleteID)
+			withCode.NewRoute().Methods(http.MethodPut).Path("/providers").HandlerFunc(r.PutIDProviders)
+		}
+	}
 }
 
 func (a *airlinesRoutes) extractCode(r *http.Request) (entity.AirlineCode, error) {
