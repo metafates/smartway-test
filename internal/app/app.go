@@ -2,10 +2,12 @@ package app
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/metafates/smartway-test/config"
 	v1 "github.com/metafates/smartway-test/internal/controller/http/v1"
@@ -34,8 +36,16 @@ func Run(cfg *config.Config) {
 
 	// HTTP server
 	router := mux.NewRouter()
+	router.Use(handlers.RecoveryHandler())
+	router.Use(func(handler http.Handler) http.Handler {
+		return handlers.LoggingHandler(os.Stderr, handler)
+	})
+
 	v1.RegisterRoutes(router, useCases, l)
-	httpServer := httpserver.New(router, httpserver.Port(cfg.HTTP.Port))
+	httpServer := httpserver.New(
+		router,
+		httpserver.Port(cfg.HTTP.Port),
+	)
 
 	// Waiting signal
 	interrupt := make(chan os.Signal, 1)
