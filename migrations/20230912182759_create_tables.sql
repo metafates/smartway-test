@@ -10,13 +10,13 @@ create table schema (
 );
 
 create table provider (
-    id varchar(2) primary key,
-    name text not null check ( name ~ '^[A-Z]{2}$' )
+    id varchar(2) primary key check ( id ~ '^[A-Z]{2}$' ),
+    name text not null check ( name <> '' )
 );
 
 create table airline (
     code varchar(2) primary key check ( code ~ '^[0-9A-Z\u0401\u0451\u0410-\u044f]{2}$' ),
-    name text not null
+    name text not null check ( name <> '' )
 );
 
 create table account_schema (
@@ -30,8 +30,8 @@ create table schema_provider (
 );
 
 create table provider_airline (
-    provider_id varchar(2) references provider(id),
-    airline_code varchar(2) references airline(code)
+    provider_id varchar(2) references provider(id) on delete cascade ,
+    airline_code varchar(2) references airline(code) on delete cascade
 );
 -- +goose StatementEnd
 

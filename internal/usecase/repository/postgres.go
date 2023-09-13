@@ -41,7 +41,7 @@ func (p *PostgresRepository) UpdateAccount(ctx context.Context, ID entity.Accoun
 	}
 	defer tx.Rollback(ctx)
 
-	_, err = tx.Exec(ctx, `delete from account_schema where account_id = $1`)
+	_, err = tx.Exec(ctx, `delete from account_schema where account_id = $1`, ID)
 	if err != nil {
 		return err
 	}
@@ -116,13 +116,13 @@ func (p *PostgresRepository) UpdateSchema(ctx context.Context, ID entity.SchemaI
 		}
 
 		query := p.buildBulkInsertQuery("schema_provider", []string{"schema_id", "provider_id"}, changes.Providers.Len())
-		values := make([]any, changes.Providers.Len()*2)
+		values := make([]any, 0, changes.Providers.Len()*2)
 
 		for _, provider := range changes.Providers.Values() {
 			values = append(values, ID, provider)
 		}
 
-		_, err = tx.Exec(ctx, query, values)
+		_, err = tx.Exec(ctx, query, values...)
 		if err != nil {
 			return err
 		}
@@ -274,13 +274,13 @@ func (p *PostgresRepository) UpdateAirline(ctx context.Context, code entity.Airl
 	}
 
 	query := p.buildBulkInsertQuery("provider_airline", []string{"airline_code", "provider_id"}, changes.Providers.Len())
-	values := make([]any, changes.Providers.Len()*2)
+	values := make([]any, 0, changes.Providers.Len()*2)
 
 	for _, provider := range changes.Providers.Values() {
 		values = append(values, code, provider)
 	}
 
-	_, err = tx.Exec(ctx, query, values)
+	_, err = tx.Exec(ctx, query, values...)
 	if err != nil {
 		return err
 	}

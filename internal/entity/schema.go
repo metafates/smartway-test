@@ -32,7 +32,7 @@ func (s *SchemaID) Scan(src any) error {
 		return err
 	}
 
-	value, ok := iv.(int)
+	value, ok := iv.(int64)
 	if !ok {
 		return errors.New("failed to scan schema id")
 	}

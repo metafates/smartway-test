@@ -51,25 +51,25 @@ func (a *AccountUseCase) GetAirlines(ctx context.Context, ID entity.AccountID) (
 		return nil, err
 	}
 
-	var airlines []entity.Airline
+	var accountAirlines []entity.Airline
 
 	codes := hashset.New[entity.AirlineCode]()
 	for _, provider := range providers {
 		// TODO: make it a bulk operation in the repo?
-		airlines, err := a.repo.GetProviderAirlines(ctx, provider.ID)
+		providerAirlines, err := a.repo.GetProviderAirlines(ctx, provider.ID)
 		if err != nil {
 			return nil, err
 		}
 
-		for _, airline := range airlines {
+		for _, airline := range providerAirlines {
 			if codes.Has(airline.Code) {
 				continue
 			}
 
 			codes.Put(airline.Code)
-			airlines = append(airlines, airline)
+			accountAirlines = append(accountAirlines, airline)
 		}
 	}
 
-	return airlines, nil
+	return accountAirlines, nil
 }
