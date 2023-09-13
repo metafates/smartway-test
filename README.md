@@ -73,7 +73,7 @@ It will...
 - Run the server inside a docker container on **port 8080**
 - Spin up auxiliary containers with
     - PostgreSQL - The database
-    - [PGWeb](https://github.com/sosedoff/pgweb) - Web UI for Postgres
+    - [PGWeb](https://github.com/sosedoff/pgweb) - Web UI for Postgres on **port 8081**
 - Apply [migrations](./migrations) using [pressly/goose](https://github.com/pressly/goose)
 - Load [example data](./example-data.sql) into the DB
 
