@@ -2,7 +2,7 @@ package repository
 
 import (
 	"context"
-	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -16,6 +16,34 @@ var _ usecase.Repository = (*PostgresRepository)(nil)
 
 type PostgresRepository struct {
 	*postgres.Postgres
+}
+
+func (p *PostgresRepository) buildBulkInsertQuery(table string, columns []string, rowCount int) string {
+	var b strings.Builder
+	var cnt int
+
+	columnCount := len(columns)
+
+	b.Grow(40000) // Need to calculate, I'm too lazy))
+
+	b.WriteString("insert into " + table + "(" + strings.Join(columns, ", ") + ") values ")
+
+	for i := 0; i < rowCount; i++ {
+		b.WriteString("(")
+		for j := 0; j < columnCount; j++ {
+			cnt++
+			b.WriteString("$")
+			b.WriteString(strconv.Itoa(cnt))
+			if j != columnCount-1 {
+				b.WriteString(", ")
+			}
+		}
+		b.WriteString(")")
+		if i != rowCount-1 {
+			b.WriteString(",")
+		}
+	}
+	return b.String()
 }
 
 func (p *PostgresRepository) StoreAccount(ctx context.Context, account entity.Account) error {
@@ -122,22 +150,14 @@ values ($1, $2);
 		return tx.Commit(ctx)
 	}
 
-	var (
-		query          strings.Builder
-		values         []any
-		placeholderIdx = 1
-	)
-
-	query.WriteString(`insert into schema_provider (schema_id, provider_id) values `)
+	query := p.buildBulkInsertQuery("schema_provider", []string{"schema_id", "provider_id"}, schema.Providers.Len())
+	values := make([]any, schema.Providers.Len()*2)
 
 	for _, provider := range schema.Providers.Values() {
-		query.WriteString(fmt.Sprintf("($%d, $%d),", placeholderIdx, placeholderIdx+1))
-		placeholderIdx += 2
-
 		values = append(values, schema.ID, provider)
 	}
 
-	_, err = tx.Exec(ctx, strings.TrimSuffix(query.String(), ","), values...)
+	_, err = tx.Exec(ctx, query, values...)
 	if err != nil {
 		return err
 	}
@@ -165,22 +185,14 @@ func (p *PostgresRepository) UpdateSchema(ctx context.Context, ID entity.SchemaI
 		}
 
 		if !changes.Providers.IsEmpty() {
-			var (
-				query          strings.Builder
-				values         []any
-				placeholderIdx = 1
-			)
-
-			query.WriteString("insert into schema_provider (schema_id, provider_id) values ")
+			query := p.buildBulkInsertQuery("schema_provider", []string{"schema_id", "provider_id"}, changes.Providers.Len())
+			values := make([]any, changes.Providers.Len()*2)
 
 			for _, provider := range changes.Providers.Values() {
-				query.WriteString(fmt.Sprintf("($%d, $%d),", placeholderIdx, placeholderIdx+1))
-				placeholderIdx += 2
-
 				values = append(values, ID, provider)
 			}
 
-			_, err := tx.Exec(ctx, strings.TrimSuffix(query.String(), ","), values...)
+			_, err := tx.Exec(ctx, query, values...)
 			if err != nil {
 				return err
 			}
@@ -242,7 +254,7 @@ where schema_id = $1
 
 func (p *PostgresRepository) GetSchemaByName(ctx context.Context, name string) (entity.Schema, bool, error) {
 	rows, err := p.Pool.Query(ctx, `
-select name, id, provider_id
+select id, provider_id
 from schema
 join schema_provider a on schema.id = a.schema_id
 where name = $1
@@ -252,22 +264,21 @@ where name = $1
 	}
 
 	schema := entity.Schema{
+		Name:      name,
 		Providers: hashset.New[entity.ProviderID](),
 	}
 
 	if rows.Next() {
 		var (
-			name       string
 			schemaID   entity.SchemaID
 			providerID entity.ProviderID
 		)
 
-		if err := rows.Scan(&name, &schemaID, &providerID); err != nil {
+		if err := rows.Scan(&schemaID, &providerID); err != nil {
 			return entity.Schema{}, false, err
 		}
 
 		schema.ID = schemaID
-		schema.Name = name
 		schema.Providers.Put(providerID)
 	} else {
 		return entity.Schema{}, false, nil
@@ -275,12 +286,11 @@ where name = $1
 
 	for rows.Next() {
 		var (
-			name       string
 			schemaID   entity.SchemaID
 			providerID entity.ProviderID
 		)
 
-		if err := rows.Scan(&name, &schemaID, &providerID); err != nil {
+		if err := rows.Scan(&schemaID, &providerID); err != nil {
 			return entity.Schema{}, false, err
 		}
 
@@ -296,18 +306,89 @@ func (p *PostgresRepository) DeleteSchema(ctx context.Context, ID entity.SchemaI
 }
 
 func (p *PostgresRepository) StoreProvider(ctx context.Context, provider entity.Provider) error {
-	//TODO implement me
-	panic("implement me")
+	tx, err := p.Pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(ctx, `
+insert into provider (id, name) values ($1, $2)
+`, provider.ID, provider.Name)
+	if err != nil {
+		return err
+	}
+
+	if provider.Airlines == nil || provider.Airlines.IsEmpty() {
+		return tx.Commit(ctx)
+	}
+
+	query := p.buildBulkInsertQuery("provider_airline", []string{"provider_id", "airline_code"}, provider.Airlines.Len())
+	values := make([]any, provider.Airlines.Len()*2)
+
+	for _, airline := range provider.Airlines.Values() {
+		values = append(values, provider.ID, airline)
+	}
+
+	_, err = tx.Exec(ctx, query, values)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
 }
 
 func (p *PostgresRepository) UpdateProvider(ctx context.Context, ID entity.ProviderID, changes entity.ProviderChanges) error {
-	//TODO implement me
-	panic("implement me")
+	if changes.Name == nil {
+		return nil
+	}
+
+	_, err := p.Pool.Exec(ctx, `update provider set name = $1 where id = $2`, ID, *changes.Name)
+	return err
 }
 
 func (p *PostgresRepository) GetProviderByID(ctx context.Context, ID entity.ProviderID) (entity.Provider, bool, error) {
-	//TODO implement me
-	panic("implement me")
+	rows, err := p.Pool.Query(ctx, `
+select name, airline_code
+from provider
+join provider_airline pa on provider.id = pa.provider_id
+where id = $1
+`, ID)
+	if err != nil {
+		return entity.Provider{}, false, err
+	}
+
+	provider := entity.Provider{
+		ID:       ID,
+		Airlines: hashset.New[entity.AirlineCode](),
+	}
+
+	if rows.Next() {
+		var (
+			name        string
+			airlineCode entity.AirlineCode
+		)
+
+		if err := rows.Scan(&name, &airlineCode); err != nil {
+			return entity.Provider{}, false, err
+		}
+	} else {
+		return entity.Provider{}, false, nil
+	}
+
+	for rows.Next() {
+		var (
+			name        string
+			airlineCode entity.AirlineCode
+		)
+
+		if err := rows.Scan(&name, &airlineCode); err != nil {
+			return entity.Provider{}, false, err
+		}
+
+		provider.Airlines.Put(airlineCode)
+	}
+
+	return provider, true, nil
 }
 
 func (p *PostgresRepository) GetProvidersByIDs(ctx context.Context, IDs ...entity.ProviderID) ([]entity.Provider, error) {
@@ -316,8 +397,8 @@ func (p *PostgresRepository) GetProvidersByIDs(ctx context.Context, IDs ...entit
 }
 
 func (p *PostgresRepository) DeleteProvider(ctx context.Context, ID entity.ProviderID) error {
-	//TODO implement me
-	panic("implement me")
+	_, err := p.Pool.Exec(ctx, `delete from provider where id = $1`, ID)
+	return err
 }
 
 func (p *PostgresRepository) StoreAirline(ctx context.Context, airline entity.Airline) error {
@@ -341,8 +422,8 @@ func (p *PostgresRepository) GetAirlinesByCodes(ctx context.Context, codes ...en
 }
 
 func (p *PostgresRepository) DeleteAirline(ctx context.Context, code entity.AirlineCode) error {
-	//TODO implement me
-	panic("implement me")
+	_, err := p.Pool.Exec(ctx, `delete from airline where code = $1`, code)
+	return err
 }
 
 func NewPostgresRepository(pg *postgres.Postgres) *PostgresRepository {
