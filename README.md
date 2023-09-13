@@ -68,13 +68,13 @@ mage full
 mage -l
 ```
 
-This will spin up...
+It will...
 
-- Server inside a docker container on **port 8080**
+- Run the server inside a docker container on **port 8080**
 - Spin up auxiliary containers with
     - PostgreSQL - The database
     - [PGWeb](https://github.com/sosedoff/pgweb) - Web UI for Postgres
-- Run [migrations](./migrations) using [pressly/goose](https://github.com/pressly/goose)
+- Apply [migrations](./migrations) using [pressly/goose](https://github.com/pressly/goose)
 - Load [example data](./example-data.sql) into the DB
 
 To check if everything is working, run healthcheck
