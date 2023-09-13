@@ -20,7 +20,7 @@ create table airline (
 );
 
 create table account_schema (
-    account_id integer references account(id) on delete cascade,
+    account_id integer references account(id) on delete cascade primary key,
     schema_id integer references schema(id) on delete cascade
 );
 

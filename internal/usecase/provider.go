@@ -30,14 +30,5 @@ func (p ProviderUseCase) Delete(ctx context.Context, ID entity.ProviderID) error
 }
 
 func (p ProviderUseCase) GetAirlines(ctx context.Context, ID entity.ProviderID) ([]entity.Airline, error) {
-	provider, providerFound, err := p.repo.GetProviderByID(ctx, ID)
-	if err != nil {
-		return nil, err
-	}
-
-	if !providerFound {
-		return nil, ErrProviderNotFound
-	}
-
-	return p.repo.GetAirlinesByCodes(ctx, provider.Airlines.Values()...)
+	return p.repo.GetProviderAirlines(ctx, ID)
 }

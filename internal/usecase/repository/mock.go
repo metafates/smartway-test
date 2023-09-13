@@ -168,7 +168,7 @@ func (m *MockRepository) GetProviderByID(ctx context.Context, ID entity.Provider
 	return provider, ok, nil
 }
 
-func (m *MockRepository) GetProvidersByIDs(ctx context.Context, IDs ...entity.ProviderID) ([]entity.Provider, error) {
+func (m *MockRepository) GetProvidersByIDsBulk(ctx context.Context, IDs ...entity.ProviderID) ([]entity.Provider, error) {
 	providers := make([]entity.Provider, len(IDs))
 
 	for i, ID := range IDs {
@@ -219,7 +219,7 @@ func (m *MockRepository) GetAirlineByCode(ctx context.Context, code entity.Airli
 	return airline, true, nil
 }
 
-func (m *MockRepository) GetAirlinesByCodes(ctx context.Context, codes ...entity.AirlineCode) ([]entity.Airline, error) {
+func (m *MockRepository) GetAirlinesByCodesBulk(ctx context.Context, codes ...entity.AirlineCode) ([]entity.Airline, error) {
 	airlines := make([]entity.Airline, len(codes))
 
 	for i, code := range codes {

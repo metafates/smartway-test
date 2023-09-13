@@ -40,11 +40,11 @@ func (a *AirlineUseCase) Add(ctx context.Context, airline entity.Airline) error 
 	return a.repo.StoreAirline(ctx, airline)
 }
 
-func (a *AirlineUseCase) SetProviders(ctx context.Context, airlineCode entity.AirlineCode, providersIDs []entity.ProviderID) error {
-	providers := hashset.New[entity.ProviderID]()
-	providers.PutAll(providersIDs)
+func (a *AirlineUseCase) SetProviders(ctx context.Context, code entity.AirlineCode, providers []entity.ProviderID) error {
+	set := hashset.New[entity.ProviderID]()
+	set.PutAll(providers)
 
-	return a.repo.UpdateAirline(ctx, airlineCode, entity.AirlineChanges{
-		Providers: providers,
+	return a.repo.UpdateAirline(ctx, code, entity.AirlineChanges{
+		Providers: set,
 	})
 }

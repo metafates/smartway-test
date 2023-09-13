@@ -37,15 +37,13 @@ func (s *SchemaUseCase) Add(ctx context.Context, schema entity.Schema) error {
 }
 
 func (s *SchemaUseCase) Delete(ctx context.Context, ID entity.SchemaID) error {
-	accounts, err := s.repo.GetAccounts(ctx)
+	accounts, err := s.repo.GetSchemaAccounts(ctx, ID)
 	if err != nil {
 		return err
 	}
 
-	for _, account := range accounts {
-		if account.Schema == ID {
-			return ErrUsedSchemaDeletion
-		}
+	if len(accounts) != 0 {
+		return ErrUsedSchemaDeletion
 	}
 
 	return s.repo.DeleteSchema(ctx, ID)

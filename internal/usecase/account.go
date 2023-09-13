@@ -37,35 +37,39 @@ func (a *AccountUseCase) SetSchema(ctx context.Context, accountID entity.Account
 }
 
 func (a *AccountUseCase) GetAirlines(ctx context.Context, ID entity.AccountID) ([]entity.Airline, error) {
-	account, accountExists, err := a.repo.GetAccountByID(ctx, ID)
+	schema, hasSchema, err := a.repo.GetAccountSchema(ctx, ID)
 	if err != nil {
 		return nil, err
 	}
 
-	if !accountExists {
-		return nil, ErrAccountNotFound
+	if !hasSchema {
+		return nil, errors.New("account does not have a schema")
 	}
 
-	schema, schemaFound, err := a.repo.GetSchemaByID(ctx, account.Schema)
+	providers, err := a.repo.GetSchemaProviders(ctx, schema.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	if !schemaFound {
-		return nil, ErrSchemaNotFound
-	}
+	var airlines []entity.Airline
 
-	providers, err := a.repo.GetProvidersByIDs(ctx, schema.Providers.Values()...)
-	if err != nil {
-		return nil, err
-	}
-
-	airlinesCodes := hashset.New[entity.AirlineCode]()
+	codes := hashset.New[entity.AirlineCode]()
 	for _, provider := range providers {
-		for _, code := range provider.Airlines.Values() {
-			airlinesCodes.Put(code)
+		// TODO: make it a bulk operation in the repo?
+		airlines, err := a.repo.GetProviderAirlines(ctx, provider.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, airline := range airlines {
+			if codes.Has(airline.Code) {
+				continue
+			}
+
+			codes.Put(airline.Code)
+			airlines = append(airlines, airline)
 		}
 	}
 
-	return a.repo.GetAirlinesByCodes(ctx, airlinesCodes.Values()...)
+	return airlines, nil
 }
