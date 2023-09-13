@@ -5,6 +5,7 @@
 <!--toc:start-->
 - [Smartway test](#smartway-test)
   - [Running](#running)
+  - [Configuration](#configuration)
   - [Operations](#operations)
     - [Add airline](#add-airline)
     - [Delete an airline by ID](#delete-an-airline-by-id)
@@ -63,6 +64,14 @@ This will spin up...
     - [PGWeb](https://github.com/sosedoff/pgweb) - Web UI for Postgres
 - Run [migrations](./migrations) using [pressly/goose](https://github.com/pressly/goose)
 - Load [example data](./example-data.sql) into the DB
+
+## Configuration
+
+Server is configured via... (by priority)
+
+1. Environment variables. See [`.env.template`](./.env.template) for reference.
+2. `.env` file
+3. [TOML config file](./config/config.toml)
 
 ## Operations
 

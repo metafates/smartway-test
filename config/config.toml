@@ -5,4 +5,7 @@ port = 8080
 level = "debug"
 
 [postgres]
+# WARNING: this is just to make submitting this task easier.
+# Don't actually do this in the real projects.
+url = "postgresql://postgres:postgres@localhost:5432/db"
 poolmax = 2
