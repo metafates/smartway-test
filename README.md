@@ -4,6 +4,7 @@
 
 <!--toc:start-->
 - [Smartway test](#smartway-test)
+  - [Note](#note)
   - [Running](#running)
   - [Configuration](#configuration)
   - [Operations](#operations)
@@ -24,6 +25,14 @@
 <!--toc:end-->
 
 Project structure is based on [evrone/go-clean-template](https://github.com/evrone/go-clean-template)
+
+## Note
+
+PostgreSQL repository implementation lacks proper errors.
+That is, if the DB operation fails, errors are returned to the end user as is, which is not
+a proper solution for the production environment.
+
+Also, OpenAPI spec would be a nice touch, but it's missing.
 
 ## Running
 
@@ -64,6 +73,12 @@ This will spin up...
     - [PGWeb](https://github.com/sosedoff/pgweb) - Web UI for Postgres
 - Run [migrations](./migrations) using [pressly/goose](https://github.com/pressly/goose)
 - Load [example data](./example-data.sql) into the DB
+
+To check if everything is working, run healthcheck
+
+```shell
+curl --location 'localhost:8080/v1/health'
+```
 
 ## Configuration
 
