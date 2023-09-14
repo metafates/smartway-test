@@ -115,16 +115,18 @@ func (p *PostgresRepository) UpdateSchema(ctx context.Context, ID entity.SchemaI
 			return err
 		}
 
-		query := p.buildBulkInsertQuery("schema_provider", []string{"schema_id", "provider_id"}, changes.Providers.Len())
-		values := make([]any, 0, changes.Providers.Len()*2)
+		if !changes.Providers.IsEmpty() {
+			query := p.buildBulkInsertQuery("schema_provider", []string{"schema_id", "provider_id"}, changes.Providers.Len())
+			values := make([]any, 0, changes.Providers.Len()*2)
 
-		for _, provider := range changes.Providers.Values() {
-			values = append(values, ID, provider)
-		}
+			for _, provider := range changes.Providers.Values() {
+				values = append(values, ID, provider)
+			}
 
-		_, err = tx.Exec(ctx, query, values...)
-		if err != nil {
-			return err
+			_, err = tx.Exec(ctx, query, values...)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -273,16 +275,18 @@ func (p *PostgresRepository) UpdateAirline(ctx context.Context, code entity.Airl
 		return err
 	}
 
-	query := p.buildBulkInsertQuery("provider_airline", []string{"airline_code", "provider_id"}, changes.Providers.Len())
-	values := make([]any, 0, changes.Providers.Len()*2)
+	if !changes.Providers.IsEmpty() {
+		query := p.buildBulkInsertQuery("provider_airline", []string{"airline_code", "provider_id"}, changes.Providers.Len())
+		values := make([]any, 0, changes.Providers.Len()*2)
 
-	for _, provider := range changes.Providers.Values() {
-		values = append(values, code, provider)
-	}
+		for _, provider := range changes.Providers.Values() {
+			values = append(values, code, provider)
+		}
 
-	_, err = tx.Exec(ctx, query, values...)
-	if err != nil {
-		return err
+		_, err = tx.Exec(ctx, query, values...)
+		if err != nil {
+			return err
+		}
 	}
 
 	return tx.Commit(ctx)
@@ -294,7 +298,8 @@ func (p *PostgresRepository) buildBulkInsertQuery(table string, columns []string
 
 	columnCount := len(columns)
 
-	b.Grow(40000) // Need to calculate, I'm too lazy))
+	// Very approximate. Needs a better calculation
+	b.Grow((4*columnCount+3)*rowCount + 100)
 
 	b.WriteString("insert into " + table + "(" + strings.Join(columns, ", ") + ") values ")
 
